@@ -2,6 +2,7 @@ package ApiServer;
 
 import ApiServer.Resource.TestResource;
 import ApiServer.Resource.UsersResource;
+import Configuration.Properties;
 import org.restlet.Application;
 import org.restlet.Component;
 import org.restlet.Server;
@@ -28,6 +29,6 @@ public class ApiServer {
         Component component = new Component();
         component.getDefaultHost().attach("/api", restRouter);
 
-        new Server(Protocol.HTTP, Integer.parseInt("8008"), component).start();
+        new Server(Protocol.HTTP, Integer.parseInt(Properties.getInstance().getProperty("restApiPort")), component).start();
     }
 }
