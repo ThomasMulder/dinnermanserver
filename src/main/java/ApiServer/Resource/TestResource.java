@@ -11,6 +11,8 @@ import org.restlet.Response;
 public class TestResource extends ApiResource {
     @Override
     protected void handleGet(Request request, Response response) throws IllegalStateException {
+        String aux = String.valueOf(request.getAttributes().get("data"));
+        String[] data = aux.split(",");
         this.returnResponse(response, new Test(), new TestSerializer());
     }
 }

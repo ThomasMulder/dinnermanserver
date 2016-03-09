@@ -1,40 +1,65 @@
 package Model;
 
+import java.util.List;
+
 /**
  * Created by Thomas on 17-2-2016.
+ * An enumeration describing a User.
  */
 public class User {
-    private int id;
-    private String name;
-    private String email;
+    /* The user's name. */
+    private String username;
+    /* A list of integer identifiers of recipes that are favorites of the user. */
+    private List<Integer> favorites;
+    /* A list of integer identifiers of allergens that are to be excluded for the user. */
+    private List<Integer> allergens;
+    /* A list of integer identifiers of recipes that the user has stated he/she made. */
+    private List<Integer> meals;
 
-    public User(int id, String name, String email) {
-        this.setId(id);
-        this.setName(name);
-        this.setEmail(email);
+    /**
+     * Constructor.
+     * @param username the user's name.
+     * @param favorites the list of favorite recipe identifiers.
+     * @param allergens the list of allergen identifiers.
+     * @param meals the list of meal identifiers.
+     */
+    public User(String username, List<Integer> favorites, List<Integer> allergens, List<Integer> meals) {
+        this.username = username;
+        this.favorites = favorites;
+        this.allergens = allergens;
+        this.meals = meals;
     }
 
-    public int getId() {
-        return id;
+    /* Accessor Methods. */
+    public String getUsername() {
+        return username;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getName() {
-        return name;
+    public List<Integer> getFavorites() {
+        return favorites;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFavorites(List<Integer> favorites) {
+        this.favorites = favorites;
     }
 
-    public String getEmail() {
-        return email;
+    public List<Integer> getAllergens() {
+        return allergens;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setAllergens(List<Integer> allergens) {
+        this.allergens = allergens;
+    }
+
+    public List<Integer> getMeals() {
+        return meals;
+    }
+
+    public void setMeals(List<Integer> meals) {
+        this.meals = meals;
     }
 }

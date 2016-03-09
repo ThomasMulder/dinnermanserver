@@ -5,6 +5,7 @@ import ApiServer.Status.IllegalStateStatus;
 import ApiServer.Status.NotFoundStatus;
 import ApiServer.Status.StatusAbstract;
 import ApiServer.Serializer.Serializer;
+import Configuration.Database;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSerializer;
 import org.restlet.Request;
@@ -13,6 +14,10 @@ import org.restlet.Restlet;
 import org.restlet.data.*;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public abstract class ApiResource extends Restlet {
@@ -143,5 +148,58 @@ public abstract class ApiResource extends Restlet {
     {
         response.setStatus(status.getStatus());
         this.returnResponse(response, status, null);
+    }
+
+    protected int getAccountId(Request request, Response response) {
+        String username = String.valueOf(request.getAttributes().get("username"));
+        String authToken = String.valueOf(request.getAttributes().get("authToken"));
+        int account_id = -1;
+        ResultSet results = Database.getInstance().ExecuteQuery("SELECT `id` FROM `accounts` WHERE `username` = '"
+                + username + "' AND `authToken` = '" + authToken + "'", new ArrayList<String>());
+        if (results != null) {
+            try {
+                if(results.first()) {
+                    account_id = results.getInt(1);
+                } else {
+                    this.returnStatus(response, new IllegalArgumentStatus(null));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return account_id;
+    }
+
+    protected void updateTokenExpiration(int account_id) {
+        Database.getInstance().ExecuteUpdate("UPDATE `accounts` SET `authTokenCreated` = CURRENT_TIMESTAMP WHERE `id` = '" + account_id + "';", new ArrayList<String>());
+    }
+
+    protected String[] getIdentifiersAsString(String data) {
+        checkData(data);
+        if (data.equals("")) {
+            return new String[0];
+        }
+        return data.split(",");
+    }
+
+    protected int[] getIdentifiersAsInteger(String data) {
+        checkData(data);
+        if (data.equals("")) {
+            return new int[0];
+        }
+        String[] aux = data.split(",");
+        int[] identifiers = new int[aux.length];
+        int i = 0;
+        for (String s : aux) {
+            identifiers[i] = Integer.valueOf(s);
+            i++;
+        }
+        return identifiers;
+    }
+
+    private void checkData(String data) {
+        if (data == null) {
+            throw new IllegalArgumentException("Invalid data provided.");
+        }
     }
 }
