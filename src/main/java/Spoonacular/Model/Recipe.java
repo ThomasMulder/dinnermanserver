@@ -1,5 +1,8 @@
 package Spoonacular.Model;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +38,7 @@ public class Recipe {
 
     public String getAttribute(String name) {
         if (name.equals("extendedIngredients")) {
-            return this.information.getExtendedIngredients().toString();
+            throw new IllegalArgumentException("Not supported here.");
         } else {
             return attributeMap.get(name);
         }
@@ -76,7 +79,11 @@ public class Recipe {
         String[] requiredValues = new String[requiredAttributes.length];
         int i = 0;
         for (String requiredAttribute : requiredAttributes) {
-            requiredValues[i] = this.attributeMap.get(requiredAttribute);
+            if (requiredAttribute.equals("extendedIngredients")) {
+                requiredValues[i] = "extendedIngredients";
+            } else {
+                requiredValues[i] = getAttribute(requiredAttribute);
+            }
             i++;
         }
         for (String requiredValue : requiredValues) {

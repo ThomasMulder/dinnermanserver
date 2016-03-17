@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
  * Created by s124392 on 16-3-2016.
  */
 public class Spoonacular {
-    private static Spoonacular.Spoonacular instance = null;
+    private static Spoonacular instance = null;
 
     private static final String KEY_IDENTIFIER = "X-Mashape-Key";
     private static final String KEY = "W4KJVUe5hAmsh81Ta7Pa8lyGzkqGp1T46XPjsnrHNi8oUnUOqu";
@@ -29,9 +29,9 @@ public class Spoonacular {
     private Spoonacular() {
     }
 
-    public static Spoonacular.Spoonacular getInstance() {
+    public static Spoonacular getInstance() {
         if (instance == null) {
-            instance = new Spoonacular.Spoonacular();
+            instance = new Spoonacular();
         }
         return instance;
     }

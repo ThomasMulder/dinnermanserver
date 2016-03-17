@@ -130,7 +130,7 @@ public abstract class ApiResource extends Restlet {
      * @param obj The object to convert to JSON
      * @param serializer An custom serializer to use on this object
      */
-    protected void returnResponse(Response response, Object obj, JsonSerializer serializer)
+    public void returnResponse(Response response, Object obj, JsonSerializer serializer)
     {
         GsonBuilder builder =  Serializer.getInstance();
         if(serializer != null) builder.registerTypeAdapter(obj.getClass(), serializer);
@@ -144,7 +144,7 @@ public abstract class ApiResource extends Restlet {
      * @param response The response to apply the status to
      * @param status The status to respond
      */
-    protected void returnStatus(Response response, StatusAbstract status)
+    public void returnStatus(Response response, StatusAbstract status)
     {
         response.setStatus(status.getStatus());
         this.returnResponse(response, status, null);

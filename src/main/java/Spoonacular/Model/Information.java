@@ -1,5 +1,7 @@
 package Spoonacular.Model;
 
+import com.google.gson.JsonArray;
+
 /**
  * Created by s124392 on 15-3-2016.
  */
@@ -280,5 +282,13 @@ public class Information {
         result = result.concat("text = " + this.text + "\n");
         result = result.concat("instructions = " + this.instructions + "\n");
         return result;
+    }
+
+    public JsonArray getExtenededIngredientsAsJson() {
+        JsonArray array = new JsonArray();
+        for (ExtendedIngredient e : this.extendedIngredients) {
+            array.add(e.toJson());
+        }
+        return array;
     }
 }

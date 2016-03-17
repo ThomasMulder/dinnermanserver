@@ -1,6 +1,7 @@
 package Spoonacular.Model;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Created by s124392 on 15-3-2016.
@@ -81,9 +82,15 @@ public class ExtendedIngredient {
         this.amount = amount;
     }
 
-    @Override
-    public String toString() {
-        Gson gson = new Gson();
-        return gson.toJson(this).toString();
+    public JsonObject toJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("aisle", this.aisle);
+        object.addProperty("name", this.name);
+        object.addProperty("amount", String.valueOf(this.amount));
+        object.addProperty("unit", this.unit);
+        object.addProperty("unitShort", this.unitShort);
+        object.addProperty("unitLong", this.unitLong);
+        object.addProperty("originalString", this.originalString);
+        return object;
     }
 }

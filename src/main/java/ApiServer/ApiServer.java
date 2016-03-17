@@ -24,6 +24,7 @@ public class ApiServer {
         router.attach("/user/{username}/{authToken}/addMeals", new MealsResource());
         router.attach("/user/{username}/{authToken}/deleteMeals", new MealsResource());
         router.attach("/user/{username}/{authToken}/profile", new UserResource());
+        router.attach("/test", new TestResource());
 
         Application restRouter = new Application() {
             @Override

@@ -1,8 +1,13 @@
 package Spoonacular.ResultHandler;
 
+import ApiServer.Resource.ApiResource;
+import ApiServer.Serializer.RecipeListSerializer;
+import ApiServer.Serializer.TestSerializer;
+import Model.Test;
 import Spoonacular.Model.Recipe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.restlet.Response;
 
 import java.util.List;
 
@@ -11,25 +16,13 @@ import java.util.List;
  */
 public class ListRecipeHandler extends ResultHandlerAbstract {
 
+    public ListRecipeHandler(ApiResource resource, Response response) {
+        super(resource, response);
+    }
+
     @Override
     public void handle(Object result) {
         List<Recipe> recipeList = (List<Recipe>) result;
-//        for (Recipe r : recipeList) {
-//            System.out.println(r.toString());
-//        }
-        String[] requiredAttributes = {"title", "id", "preparationMinutes"};
-        System.out.println(listToJson(recipeList, requiredAttributes));
-    }
-
-    private JsonObject listToJson(List<Recipe> recipes, String[] requiredAttributes) {
-        JsonArray jsonRecipes = new JsonArray();
-        for (Recipe recipe : recipes) {
-            if (recipe.isValidRecipe(requiredAttributes)) {
-                jsonRecipes.add(recipeToJson(recipe, requiredAttributes));
-            }
-        }
-        JsonObject object = new JsonObject();
-        object.add("recipes", jsonRecipes);
-        return object;
+        resource.returnResponse(response, recipeList, new RecipeListSerializer());
     }
 }
