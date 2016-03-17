@@ -82,6 +82,12 @@ public class ExtendedIngredient {
         this.amount = amount;
     }
 
+    @Override
+    public String toString() {
+        Gson gson = new Gson();
+        return gson.toJson(this).toString();
+    }
+
     public JsonObject toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("aisle", this.aisle);

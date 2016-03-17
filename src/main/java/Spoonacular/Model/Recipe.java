@@ -1,8 +1,5 @@
 package Spoonacular.Model;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-
 import java.util.HashMap;
 import java.util.Map;
 
