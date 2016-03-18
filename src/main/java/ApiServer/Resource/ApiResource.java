@@ -154,8 +154,8 @@ public abstract class ApiResource extends Restlet {
         String username = String.valueOf(request.getAttributes().get("username"));
         String authToken = String.valueOf(request.getAttributes().get("authToken"));
         int account_id = -1;
-        ResultSet results = Database.getInstance().ExecuteQuery("SELECT `id` FROM `accounts` WHERE `username` = '"
-                + username + "' AND `authToken` = '" + authToken + "'", new ArrayList<String>());
+        ResultSet results = Database.getInstance().ExecuteQuery("SELECT `id` FROM `accounts` WHERE BINARY `username` = '"
+                + username + "' AND BINARY `authToken` = '" + authToken + "'", new ArrayList<String>());
         if (results != null) {
             try {
                 if(results.first()) {
