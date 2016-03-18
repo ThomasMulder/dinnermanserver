@@ -6,6 +6,8 @@ import Spoonacular.Model.Recipe;
 import com.google.gson.JsonObject;
 import org.restlet.Response;
 
+import java.util.Map;
+
 /**
  * Created by s124392 on 16-3-2016.
  */
@@ -26,11 +28,18 @@ public abstract class ResultHandlerAbstract {
 
     protected JsonObject recipeToJson(Recipe recipe) {
         JsonObject object = new JsonObject();
-        for (String requiredAttribute : requiredAttributes) {
-            if (requiredAttribute.equals("extendedIngredients")) {
-                object.add("extendedIngredients", recipe.getInformation().getExtenededIngredientsAsJson());
-            } else {
-                object.addProperty(requiredAttribute, recipe.getAttribute(requiredAttribute));
+        if (requiredAttributes.length == 1 && requiredAttributes[0].equals("all")) {
+            for (Map.Entry<String, String> entry : recipe.getAttributeMap().entrySet()) {
+                object.addProperty(entry.getKey(), entry.getValue());
+            }
+            object.add("extendedIngredients", recipe.getInformation().getExtenededIngredientsAsJson());
+        } else {
+            for (String requiredAttribute : requiredAttributes) {
+                if (requiredAttribute.equals("extendedIngredients")) {
+                    object.add("extendedIngredients", recipe.getInformation().getExtenededIngredientsAsJson());
+                } else {
+                    object.addProperty(requiredAttribute, recipe.getAttribute(requiredAttribute));
+                }
             }
         }
         return object;

@@ -41,7 +41,7 @@ public class Recipe {
         }
     }
 
-    private Map<String, String> getAttributeMap() {
+    public Map<String, String> getAttributeMap() {
         Map<String, String> attributeMap = new HashMap();
         attributeMap.put("summary", this.summary);
         attributeMap.put("vegetarian", String.valueOf(this.information.isVegetarian()));
@@ -73,6 +73,9 @@ public class Recipe {
     }
 
     public boolean isValidRecipe(String[] requiredAttributes) {
+        if (requiredAttributes.length == 1 && requiredAttributes[0].equals("all")) {
+            return true;
+        }
         String[] requiredValues = new String[requiredAttributes.length];
         int i = 0;
         for (String requiredAttribute : requiredAttributes) {
