@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Database {
     /* Start Singleton */
@@ -103,5 +106,122 @@ public class Database {
         }
     }
 
+    /**
+     * Returns a list of all cuisines present in the database.
+     * @return {@code List<String>}.
+     */
+    public List<String> getCuisines() {
+        List<String> result = new ArrayList();
+        Set<String> aux = new HashSet(); // Auxiliary set to take care of duplicates.
+        ResultSet cuisineList = ExecuteQuery("SELECT `cuisine` FROM `recipes`;", new ArrayList<String>());
+        try {
+            while (cuisineList.next()) {
+                String cuisine = cuisineList.getString(1);
+                aux.add(cuisine);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        for (String cuisine : aux) {
+            result.add(cuisine);
+        }
+        return result;
+    }
 
+    /**
+     * Returns a list of all searchable ingredients in the database.
+     * @return {@code List<String>}
+     */
+    public List<String> getSearchIngredients() {
+        List<String> result = new ArrayList();
+        Set<String> aux = new HashSet(); // Auxiliary set to take care of duplicates.
+        ResultSet ingredientList = ExecuteQuery("SELECT `ingredient` FROM `search_ingredients`;", new ArrayList<String>());
+        try {
+            while (ingredientList.next()) {
+                String ingredient = ingredientList.getString(1);
+                aux.add(capitalize(ingredient));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        for (String cuisine : aux) {
+            result.add(cuisine);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a list of recipe ids of recipes that are allowed with respect to the user's allergen profile.
+     * @param accountId
+     * @return
+     */
+    public List<Integer> getAllowedRecipeIds(int accountId) {
+        List<Integer> result = new ArrayList();
+        String recipeQuery = "SELECT `id` FROM `recipes`;";
+        List<Integer> recipeIds = new ArrayList();
+        ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
+        try {
+            while (recipeResults.next()) { // Obtain the ids of all recipes.
+                recipeIds.add(recipeResults.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        String allergenQuery = "SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + accountId + "';";
+        ResultSet allergenResults = ExecuteQuery(allergenQuery, new ArrayList<String>());
+        List<String> allergens = new ArrayList();
+        try {
+            while (allergenResults.next()) { // Obtain the user's allergen list.
+                String allergen = allergenResults.getString(1);
+                allergens.add(allergen);
+            }
+            for (int recipeId : recipeIds) { // Check every recipe...
+                String ingredientQuery = "SELECT `ingredient` FROM `search_ingredients` WHERE `recipe_id` = '" + recipeId + "';";
+                ResultSet ingredientResults = ExecuteQuery(ingredientQuery, new ArrayList<String>());
+                List<String> ingredients = new ArrayList();
+                while (ingredientResults.next()) { // Obtain the list of ingredients for this recipe.
+                    String ingredient = ingredientResults.getString(1);
+                    ingredient = ingredient.trim();
+                    ingredients.add(ingredient);
+                }
+                boolean recipeIsAllowed = true;
+                for (String ingredient : ingredients) { // Check whether or not the recipe contains an allergen.
+                    if (listContains(allergens, ingredient)) {
+                        recipeIsAllowed = false;
+                        break;
+                    }
+                }
+                if (recipeIsAllowed) { // The recipe is allowed with respect to the user's allergens.
+                    result.add(recipeId);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
+     * Checks whether or not {@code List<String> list} contains {@code String string}.
+     * @param list the list to check in.
+     * @param string the string to check for.
+     * @return {@code boolean}.
+     */
+    private boolean listContains(List<String> list, String string) {
+        for (String s : list) {
+            if (s.equals(string)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Turn the first letter of parameterised {@code String} into an uppercase character.
+     * @param str the string to capatilize.
+     * @return {@code String}
+     */
+    private String capitalize(String str) {
+        return (str.substring(0, 1).toUpperCase() + str.substring(1));
+    }
 }

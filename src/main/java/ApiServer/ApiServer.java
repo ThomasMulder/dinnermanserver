@@ -24,9 +24,10 @@ public class ApiServer {
         router.attach("/user/{username}/{authToken}/addMeals", new MealsResource());
         router.attach("/user/{username}/{authToken}/deleteMeals", new MealsResource());
         router.attach("/user/{username}/{authToken}/profile", new UserResource());
-        router.attach("/recipe/{username}/{authToken}/{id}/{requiredAttributes}", new RecipeResource());
+        router.attach("/recipe/{username}/{authToken}/specific/{id}", new RecipeResource());
         router.attach("/recipe/{username}/{authToken}/random", new RandomResource());
-        //router.attach("/test/{requiredAttributes}", new TestResource());
+        router.attach("/recipe/{username}/{authToken}/schedule/{days}", new ScheduleResource());
+        router.attach("/test", new TestResource());
 
         Application restRouter = new Application() {
             @Override

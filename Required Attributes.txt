@@ -1,0 +1,16 @@
+Required Attributes
+
+id
+imageUrl
+title
+calories
+fat
+protein
+carbs
+servings
+prepareminutes
+cookminutes
+totalminutes
+extendedIngredients (originalString only)
+summary
+instructions

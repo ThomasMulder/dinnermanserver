@@ -1,11 +1,13 @@
 package ApiServer.Resource;
 
+import ApiServer.Serializer.AuxiliarySerializer;
 import ApiServer.Status.IllegalArgumentStatus;
 import ApiServer.Status.IllegalStateStatus;
 import ApiServer.Status.NotFoundStatus;
 import ApiServer.Status.StatusAbstract;
 import ApiServer.Serializer.Serializer;
 import Configuration.Database;
+import Model.Recipe;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSerializer;
 import org.restlet.Request;
@@ -195,6 +197,35 @@ public abstract class ApiResource extends Restlet {
             i++;
         }
         return identifiers;
+    }
+
+    protected Recipe getRecipeById(int id) {
+        String query = "SELECT * FROM `recipes` WHERE `id` = '" + id + "';";
+        ResultSet resultSet = Database.getInstance().ExecuteQuery(query, new ArrayList<String>());
+        try {
+            if (resultSet.next()) {
+                Recipe recipe = new Recipe(resultSet.getInt(2), resultSet.getInt(10), resultSet.getInt(11),
+                        resultSet.getInt(12), resultSet.getInt(13), resultSet.getString(3), resultSet.getString(4),
+                        resultSet.getString(5), resultSet.getString(6), resultSet.getString(7), resultSet.getString(8),
+                        resultSet.getString(9), resultSet.getString(14), resultSet.getString(15), resultSet.getString(16));
+                return recipe;
+
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    protected void makeRecipeResponse(Response response, int id) {
+        Recipe recipe = getRecipeById(id);
+        if (recipe == null) {
+            this.returnStatus(response, new IllegalStateStatus(null));
+        } else {
+            this.returnResponse(response, recipe.toJson(), new AuxiliarySerializer());
+        }
     }
 
     private void checkData(String data) {

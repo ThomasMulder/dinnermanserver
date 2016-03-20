@@ -1,7 +1,5 @@
 package ApiServer.Resource;
 
-import Spoonacular.ResultHandler.RecipeHandler;
-import Spoonacular.Spoonacular;
 import org.restlet.Request;
 import org.restlet.Response;
 
@@ -15,10 +13,8 @@ public class RecipeResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            String id = String.valueOf(request.getAttributes().get("id"));
-            String attributeString = String.valueOf(request.getAttributes().get("requiredAttributes"));
-            String[] requiredAttributes = attributeString.split(",");
-            Spoonacular.getInstance().queryById(id, new RecipeHandler(response, this, requiredAttributes));
+            int recipe_id = Integer.parseInt(String.valueOf(request.getAttributes().get("id")));
+            makeRecipeResponse(response, recipe_id);
         }
     }
 }

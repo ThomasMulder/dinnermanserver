@@ -18,8 +18,8 @@ public class AllergensResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            for (int id : getIdentifiersAsInteger(data)) {
-                Database.getInstance().ExecuteUpdate("INSERT INTO `allergens` (`account_id`, `allergen_id`) VALUES ('" + account_id + "', '" + id + "');", new ArrayList<String>());
+            for (String allergen : getIdentifiersAsString(data)) {
+                Database.getInstance().ExecuteUpdate("INSERT INTO `allergens` (`account_id`, `allergen`) VALUES ('" + account_id + "', '" + allergen + "');", new ArrayList<String>());
             }
             this.returnStatus(response, new SuccessStatus(null));
         } else {
@@ -32,8 +32,8 @@ public class AllergensResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            for (int id : getIdentifiersAsInteger(data)) {
-                Database.getInstance().ExecuteUpdate("DELETE FROM `allergens` WHERE `account_id` = '" + account_id + "' AND `allergen_id` = '" + id + "';", new ArrayList<String>());
+            for (String allergen : getIdentifiersAsString(data)) {
+                Database.getInstance().ExecuteUpdate("DELETE FROM `allergens` WHERE `account_id` = '" + account_id + "' AND `allergen` = '" + allergen + "';", new ArrayList<String>());
             }
             this.returnStatus(response, new SuccessStatus(null));
         } else {
