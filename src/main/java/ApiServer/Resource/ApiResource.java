@@ -8,6 +8,7 @@ import ApiServer.Status.StatusAbstract;
 import ApiServer.Serializer.Serializer;
 import Configuration.Database;
 import Model.Recipe;
+import Model.User;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSerializer;
 import org.restlet.Request;
@@ -21,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public abstract class ApiResource extends Restlet {
     @Override
@@ -226,6 +228,41 @@ public abstract class ApiResource extends Restlet {
         } else {
             this.returnResponse(response, recipe.toJson(), new AuxiliarySerializer());
         }
+    }
+
+    protected User getUser(int id, String username) {
+        List<Integer> favorites = new ArrayList();
+        List<String> allergens = new ArrayList();
+        List<Integer> meals = new ArrayList();
+        ResultSet result = Database.getInstance().ExecuteQuery("SELECT `recipe_id` FROM `favorites` WHERE `account_id` = '" + id + "';", new ArrayList<String>());
+        try {
+            while (result.next()) {
+                favorites.add(result.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        result = Database.getInstance().ExecuteQuery("SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + id + "';", new ArrayList<String>());
+        try {
+            while (result.next()) {
+                allergens.add(result.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        result = Database.getInstance().ExecuteQuery("SELECT `meal_id` FROM `meals` WHERE `account_id` = '" + id + "';", new ArrayList<String>());
+        try {
+            while (result.next()) {
+                meals.add(result.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new User(username, favorites, allergens, meals);
+    }
+
+    protected int getRandomIndex(List list) {
+        return (int) Math.round(Math.random() * (list.size() - 1));
     }
 
     private void checkData(String data) {

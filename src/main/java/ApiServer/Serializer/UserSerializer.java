@@ -20,8 +20,10 @@ public class UserSerializer implements JsonSerializer<User> {
         }
         object.add("favorites", favorites);
         JsonArray allergens = new JsonArray();
-        for (int id : user.getAllergens()) {
-            allergens.add(jsonSerializationContext.serialize(id));
+        for (String allergen : user.getAllergens()) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("allergen", allergen);
+            allergens.add(obj);
         }
         object.add("allergens", allergens);
         JsonArray meals = new JsonArray();
