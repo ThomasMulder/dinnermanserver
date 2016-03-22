@@ -167,22 +167,19 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        String allergenQuery = "SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + accountId + "';";
-        ResultSet allergenResults = ExecuteQuery(allergenQuery, new ArrayList<String>());
-        List<String> allergens = new ArrayList();
-        try {
-            while (allergenResults.next()) { // Obtain the user's allergen list.
-                String allergen = allergenResults.getString(1);
-                allergens.add(allergen);
-            }
+            List<String> allergens = getAllergens(accountId);
             for (int recipeId : recipeIds) { // Check every recipe...
                 String ingredientQuery = "SELECT `ingredient` FROM `search_ingredients` WHERE `recipe_id` = '" + recipeId + "';";
                 ResultSet ingredientResults = ExecuteQuery(ingredientQuery, new ArrayList<String>());
                 List<String> ingredients = new ArrayList();
-                while (ingredientResults.next()) { // Obtain the list of ingredients for this recipe.
-                    String ingredient = ingredientResults.getString(1);
-                    ingredient = ingredient.trim();
-                    ingredients.add(ingredient);
+                try {
+                    while (ingredientResults.next()) { // Obtain the list of ingredients for this recipe.
+                        String ingredient = ingredientResults.getString(1);
+                        ingredient = ingredient.trim();
+                        ingredients.add(ingredient);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 boolean recipeIsAllowed = true;
                 for (String ingredient : ingredients) { // Check whether or not the recipe contains an allergen.
@@ -194,6 +191,41 @@ public class Database {
                 if (recipeIsAllowed) { // The recipe is allowed with respect to the user's allergens.
                     result.add(recipeId);
                 }
+            }
+        return result;
+    }
+
+    public List<String> getAllowedIngredients(int accountId) {
+        return getListDifference(getSearchIngredients(), getAllergens(accountId));
+    }
+
+    public List<String> getListDifference(List<String> a, List<String> b) {
+        List<String> result = new ArrayList();
+        for (String s : a) {
+            s = s.toLowerCase().trim();
+            boolean isAllowed = true;
+            for (String t : b) {
+                t = t.toLowerCase().trim();
+                if (t.equals(s)) {
+                    isAllowed = false;
+                    break;
+                }
+            }
+            if (isAllowed) {
+                result.add(s);
+            }
+        }
+        return result;
+    }
+
+    public List<String> getAllergens(int accountId) {
+        List<String> result = new ArrayList();
+        String allergenQuery = "SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + accountId + "';";
+        ResultSet allergenResults = ExecuteQuery(allergenQuery, new ArrayList<String>());
+        try {
+            while (allergenResults.next()) { // Obtain the user's allergen list.
+                String allergen = allergenResults.getString(1);
+                result.add(allergen);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -207,9 +239,24 @@ public class Database {
      * @param string the string to check for.
      * @return {@code boolean}.
      */
-    private boolean listContains(List<String> list, String string) {
+    public boolean listContains(List<String> list, String string) {
         for (String s : list) {
             if (s.equals(string)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether or not {@code List<String> list} contains {@code String string}.
+     * @param list the list to check in.
+     * @param x the string to check for.
+     * @return {@code boolean}.
+     */
+    public boolean listContains(List<Integer> list, int x) {
+        for (int i : list) {
+            if (i == x) {
                 return true;
             }
         }

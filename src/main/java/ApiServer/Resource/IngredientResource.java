@@ -1,7 +1,9 @@
 package ApiServer.Resource;
 
+import ApiServer.Serializer.RecipeListSerializer;
 import ApiServer.Status.IllegalStateStatus;
 import Configuration.Database;
+import Model.Recipe;
 import Model.RecipeIngredientSimilarityMap;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -24,15 +26,19 @@ public class IngredientResource extends ApiResource {
             updateTokenExpiration(account_id);
             String ingredientString = String.valueOf(request.getAttributes().get("ingredients"));
             String[] ingredients = ingredientString.split(",");
-            List<String> allowedIngredients = Database.getInstance().getSearchIngredients();
+            List<String> allowedIngredients = Database.getInstance().getAllowedIngredients(account_id);
             List<String> ingredientsIntersection = getIntersection(ingredients, allowedIngredients);
             RecipeIngredientSimilarityMap similarity = new RecipeIngredientSimilarityMap();
+            List<Integer> allowedIds = Database.getInstance().getAllowedRecipeIds(account_id);
             for (String s : ingredientsIntersection) {
-                String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "';";
+                String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "\\r';";
                 ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
                 try {
                     while (recipeResults.next()) {
-                        similarity.add(recipeResults.getInt(1));
+                        int i = recipeResults.getInt(1);
+                        if (Database.getInstance().listContains(allowedIds, i)) {
+                            similarity.add(i);
+                        }
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -40,14 +46,20 @@ public class IngredientResource extends ApiResource {
                 }
             }
             similarity.sortDescending();
-
+            List<Recipe> recipes = new ArrayList();
+            for (int i = 0; i < Math.min(MAX_RESULTS, similarity.getSimilarities().size()); i++) {
+                recipes.add(getRecipeById(similarity.getRecipeIds().get(i)));
+            }
+            this.returnResponse(response, recipes, new RecipeListSerializer());
         }
     }
 
-    private List<String> getIntersection(String[] a, List<String> b) {
+    public List<String> getIntersection(String[] a, List<String> b) {
         List<String> result = new ArrayList();
-        for (String s : a) {
-            for (String t : b) {
+        for (String s : b) {
+            s = s.toLowerCase().trim();
+            for (String t : a) {
+                t = t.toLowerCase().trim();
                 if (s.equals(t)) {
                     result.add(s);
                     break;
