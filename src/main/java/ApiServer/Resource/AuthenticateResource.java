@@ -1,6 +1,7 @@
 package ApiServer.Resource;
 
 import ApiServer.Serializer.TokenSerializer;
+import ApiServer.Status.IllegalArgumentStatus;
 import Configuration.Database;
 import Processing.TokenGenerator;
 import org.restlet.Request;
@@ -37,9 +38,15 @@ public class AuthenticateResource extends ApiResource {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
+                this.returnStatus(response, new IllegalArgumentStatus(null));
             }
-        Database.getInstance().ExecuteUpdate("UPDATE `accounts` SET `authToken` = '" + authenticationToken +
-                "', `authTokenCreated` = CURRENT_TIMESTAMP WHERE `username` = '" + username + "';", new ArrayList<String>());
+            if (!(authenticationToken == null || authenticationToken == "")) {
+                Database.getInstance().ExecuteUpdate("UPDATE `accounts` SET `authToken` = '" + authenticationToken +
+                        "', `authTokenCreated` = CURRENT_TIMESTAMP WHERE `username` = '" + username + "';", new ArrayList<String>());
+            } else {
+                this.returnStatus(response, new IllegalArgumentStatus(null));
+                return;
+            }
         this.returnResponse(response, authenticationToken, new TokenSerializer(0));
         }
     }
