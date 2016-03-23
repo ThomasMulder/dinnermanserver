@@ -2,6 +2,7 @@ package ApiServer.Resource;
 
 import ApiServer.Serializer.ScheduleSerializer;
 
+import Configuration.Database;
 import Model.Recipe;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -24,8 +25,10 @@ public class ScheduleResource extends AbstractScheduleResource {
             String[] cuisineSchedule = findCuisineSchedule(account_id, days);
             List<Recipe> schedule = new ArrayList();
             for (String cuisine : cuisineSchedule) {
-                List<Integer> ids = getAllowedCuisineIds(account_id, cuisine);
-                int id = ids.get(getRandomIndex(ids));
+                List<Integer> allowedByCuisine = getAllowedCuisineIds(account_id, cuisine);
+                List<Integer> allowedByAllergen = Database.getInstance().getAllowedRecipeIds(account_id);
+                List<Integer> allowedIds = getListIntegerIntersection(allowedByCuisine, allowedByAllergen);
+                int id = allowedIds.get(getRandomIndex(allowedIds));
                 schedule.add(getRecipeById(id));
             }
             this.returnResponse(response, schedule, new ScheduleSerializer());

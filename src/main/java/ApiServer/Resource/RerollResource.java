@@ -46,8 +46,10 @@ public class RerollResource extends AbstractScheduleResource {
             if (rerollIndex == -1) {
                 this.returnStatus(response, new IllegalArgumentStatus(null));
             } else {
-                List<Integer> ids = getAllowedCuisineIds(account_id, cuisineSchedule[rerollIndex]);
-                int id = ids.get(getRandomIndex(ids));
+                List<Integer> allowedByCuisine = getAllowedCuisineIds(account_id, cuisineSchedule[rerollIndex]);
+                List<Integer> allowedByAllergens = Database.getInstance().getAllowedRecipeIds(account_id);
+                List<Integer> allowedIds = getListIntegerIntersection(allowedByCuisine, allowedByAllergens);
+                int id = allowedIds.get(getRandomIndex(allowedIds));
                 makeRecipeResponse(response, id);
             }
         }

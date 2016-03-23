@@ -53,19 +53,4 @@ public class IngredientResource extends ApiResource {
             this.returnResponse(response, recipes, new RecipeListSerializer());
         }
     }
-
-    public List<String> getIntersection(String[] a, List<String> b) {
-        List<String> result = new ArrayList();
-        for (String s : b) {
-            s = s.toLowerCase().trim();
-            for (String t : a) {
-                t = t.toLowerCase().trim();
-                if (s.equals(t)) {
-                    result.add(s);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
 }

@@ -15,11 +15,5 @@ public class IngredientResourceTest {
 
     @Test
     public void testGetIntersection() throws Exception {
-        IngredientResource res = new IngredientResource();
-        String[] array = {"apples", "pears"};
-        List<String> list = new ArrayList();
-        list.add("apples");
-        List<String> intersection = res.getIntersection(array, list);
-        assertTrue(intersection.get(0).equals("apples"));
     }
 }
