@@ -14,6 +14,9 @@ public class Database {
     /* Start Singleton */
     private static Database instance = null;
 
+    private static final int FAVORITE_WEIGHT = 5;
+    private static final int MEAL_WEIGHT = 1;
+
     public static Database getInstance()
     {
         if(instance == null) {
@@ -226,6 +229,20 @@ public class Database {
             while (allergenResults.next()) { // Obtain the user's allergen list.
                 String allergen = allergenResults.getString(1);
                 result.add(allergen);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public List<Integer> getRecipeIdsByPopularity() {
+        String popularQuery = "SELECT `recipe_id` FROM (SELECT `recipe_id` FROM (SELECT `recipe_id`, SUM(`CNT`) AS `CNT` FROM (SELECT `recipe_id`, 5 * COUNT(`recipe_id`) AS `CNT` FROM `favorites` GROUP BY `recipe_id` UNION ALL SELECT `meal_id` AS `recipe_id`, 1 * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY `meal_id`) AS X GROUP BY `recipe_id` ORDER BY `CNT` DESC) AS Y) AS X UNION ALL (SELECT `id` AS `recipe_id` FROM `recipes` WHERE `id` NOT IN (SELECT `recipe_id` AS `id` FROM (SELECT `recipe_id`, SUM(`CNT`) AS `CNT` FROM (SELECT `recipe_id`, " + FAVORITE_WEIGHT + " * COUNT(`recipe_id`) AS `CNT` FROM `favorites` GROUP BY `recipe_id` UNION ALL SELECT `meal_id` AS `recipe_id`, " + MEAL_WEIGHT + " * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY `meal_id`) AS X GROUP BY `recipe_id` ORDER BY `CNT` DESC) AS Y));";
+        List<Integer> result = new ArrayList();
+        ResultSet popularResults = ExecuteQuery(popularQuery, new ArrayList<String>());
+        try {
+            while (popularResults.next()) {
+                result.add(popularResults.getInt(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();

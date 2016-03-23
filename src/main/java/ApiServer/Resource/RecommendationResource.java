@@ -1,7 +1,9 @@
 package ApiServer.Resource;
 
+import ApiServer.Serializer.RecipeListSerializer;
 import ApiServer.Status.IllegalStateStatus;
 import Configuration.Database;
+import Model.Recipe;
 import Model.User;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -14,6 +16,7 @@ import java.util.*;
  * Created by s124392 on 2-3-2016.
  */
 public class RecommendationResource extends ApiResource {
+    private static final int NUM_RECIPES = 5;
 
     @Override
     protected void handleGet(Request request, Response response) throws  IllegalArgumentException {
@@ -39,35 +42,30 @@ public class RecommendationResource extends ApiResource {
             for (User other : otherUsers) {
                 similarityMap.put(other, user.computeSimilarity(other));
             }
-            //similarityMap = sortByValue(similarityMap);
-            User mostSimilar = null;
-            int highestScore = Integer.MIN_VALUE;
-            for (Map.Entry<User, Integer> entry : similarityMap.entrySet()) {
-                if (highestScore < entry.getValue() && !getFavoriteMealDifference(user, entry.getKey()).isEmpty()) {
-                    mostSimilar = entry.getKey();
-                    highestScore = entry.getValue();
+            similarityMap = sortByValue(similarityMap);
+            List<User> usersBySimilarity = new ArrayList();
+            usersBySimilarity.addAll(similarityMap.keySet());
+            List<Integer> recommendationIds = new ArrayList();
+            int i = 0;
+            while (recommendationIds.size() < NUM_RECIPES && i < usersBySimilarity.size()) {
+                User u = usersBySimilarity.get(i);
+                List<Integer> diff = getFavoriteMealDifference(user, u);
+                for (int j = 0; j < Math.min(NUM_RECIPES - recommendationIds.size(), diff.size()); j++) {
+                    insertUnique(recommendationIds, diff.get(j));
                 }
+                i++;
             }
-            if (mostSimilar == null) {
-                String recipeQuery = "SELECT `id` FROM `recipes`;";
-                ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
-                List<Integer> recipeIds = new ArrayList();
-                try {
-                    while (recipeResults.next()) {
-                        recipeIds.add(recipeResults.getInt(1));
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    this.returnStatus(response, new IllegalStateStatus(null));
-                }
-                int index = (int) Math.round(Math.random() * (recipeIds.size() - 1));
-                makeRecipeResponse(response, recipeIds.get(index));
-            } else {
-                List<Integer> mealDifference = getFavoriteMealDifference(user, mostSimilar);
-                int index = (int) Math.round(Math.random() * (mealDifference.size() - 1));
-                int mealIndex = mealDifference.get(index);
-                makeRecipeResponse(response, mealIndex);
+            List<Integer> recipesByPopularity = Database.getInstance().getRecipeIdsByPopularity();
+            i = 0;
+            while(recommendationIds.size() < NUM_RECIPES) {
+                insertUnique(recommendationIds, recipesByPopularity.get(i));
+                i++;
             }
+            List<Recipe> recipes = new ArrayList();
+            for (int j : recommendationIds) {
+                recipes.add(getRecipeById(j));
+            }
+            this.returnResponse(response, recipes, new RecipeListSerializer());
         }
     }
 
@@ -124,5 +122,18 @@ public class RecommendationResource extends ApiResource {
             result.put( entry.getKey(), entry.getValue() );
         }
         return result;
+    }
+
+    private void insertUnique(List<Integer> l, int x) {
+        boolean contains = false;
+        for (int i : l) {
+            if (i == x) {
+                contains = true;
+                break;
+            }
+        }
+        if (!contains) {
+            l.add(x);
+        }
     }
 }
