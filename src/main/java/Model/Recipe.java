@@ -7,9 +7,30 @@ import com.google.gson.JsonObject;
  * A data-type representing a recipe.
  */
 public class Recipe {
+    /**
+     * Instance variables.
+     * {@code int id} the recipe's unique identifier.
+     * {@code int servings} the number of people this recipe serves.
+     * {@code int preparationMintes} the number of minutes spent on preparing this recipe.
+     * {@code int cookingMinutes} the number of minutes spent on cooking this recipe.
+     * {@code int readyInMinutes} the total number of minutes spent on preparing and cooking this recipe.
+     * {@code int calories} the number of calories in this recipe.
+     * {@code int fat} the amount of fat in this recipe, in grams.
+     * {@code int protein} the amount of protein in this recipe, in grams.
+     * {@code int carbs} the amount of carbohydrates in this recipe, in grams.
+     * {@code String title} the title of this recipe.
+     * {@code String image} a reference to an image of this recipe.
+     * {@code String cuisine} the cuisine to which to recipe belongs (e.g. french, italian, thai etc...).
+     * {@code String summary} a summary text describing this recipe.
+     * {@code String instructions} a text providing step-by-step instructions to prepare this recipe.
+     * {@code String ingredients} a new-line separated text detailing the ingredients used in this recipe.
+     */
     private int id, servings, preparationMinutes, cookingMinutes, readyInMinutes, calories, fat, protein, carbs;
     private String title, image, cuisine, summary, instructions, ingredients;
 
+    /**
+     * Generated Constructor.
+     */
     public Recipe(int id, int servings, int preparationMinutes, int cookingMinutes, int readyInMinutes, String title, String image, String cuisine, int calories, int fat, int protein, int carbs, String summary, String instructions, String ingredients) {
         this.id = id;
         this.servings = servings;
@@ -28,6 +49,7 @@ public class Recipe {
         this.ingredients = ingredients;
     }
 
+    /* Accessor Methods */
     public int getId() {
         return id;
     }

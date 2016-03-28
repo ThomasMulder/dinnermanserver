@@ -1,17 +1,12 @@
 package ApiServer.Resource;
 
-import ApiServer.Serializer.Serializer;
 import ApiServer.Status.IllegalArgumentStatus;
 import ApiServer.Status.SuccessStatus;
 import Configuration.Database;
-import Model.Test;
 import org.restlet.Request;
 import org.restlet.Response;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by s124392 on 24-2-2016.

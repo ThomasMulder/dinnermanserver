@@ -47,7 +47,7 @@ public class AuthenticateResource extends ApiResource {
                 this.returnStatus(response, new IllegalArgumentStatus(null));
                 return;
             }
-        this.returnResponse(response, authenticationToken, new TokenSerializer(0));
+        this.returnResponse(response, authenticationToken, new TokenSerializer());
         }
     }
 }

@@ -66,23 +66,32 @@ public class User {
         this.meals = meals;
     }
 
+    /**
+     * Computes the similarity of {@code User this} to parameterised {@code User that}, based on the following formula:
+     * similarity(this, that) = FAVORITE_WEIGHT * sharedFavorites(this, that) + MEAL_WEIGHT * sharedMeals(this, that),
+     * where sharedFavorites() and sharedMeals() denote the number of ids found in both the favorite- and meal id lists
+     * of {@code this} and {@code that}, respectively.
+     * @param that the {@code User} to calculate similarity with.
+     * @return the similarity score between two users.
+     */
     public int computeSimilarity(User that) {
         int sharedFavoriteCount = 0;
         int sharedMealCount = 0;
-        for (int thisFavorite : this.favorites) {
+        for (int thisFavorite : this.favorites) { // Count the number of shared favorites.
             for (int thatFavorite : that.getFavorites()) {
                 if (thisFavorite == thatFavorite) {
                     sharedFavoriteCount++;
                 }
             }
         }
-        for (int thisMeal : this.meals) {
+        for (int thisMeal : this.meals) { // Count the number of shared meals.
             for (int thatMeal : that.getMeals()) {
                 if (thisMeal == thatMeal) {
                     sharedMealCount++;
                 }
             }
         }
+        /* Apply formula and return result. */
         return (int) (FAVORITE_WEIGHT * sharedFavoriteCount + MEAL_WEIGHT * sharedMealCount);
     }
 }

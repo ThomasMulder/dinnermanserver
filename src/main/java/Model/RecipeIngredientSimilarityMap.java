@@ -3,7 +3,11 @@ package Model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A data-type that counts the number of ingredients found in a recipe, if any.
+ */
 public class RecipeIngredientSimilarityMap {
+    /* Accessor Methods */
     public List<Integer> getRecipeIds() {
         return recipeIds;
     }
@@ -20,7 +24,9 @@ public class RecipeIngredientSimilarityMap {
         this.similarities = similarities;
     }
 
+    /* A list of all recipe ids in this mapping. */
     private List<Integer> recipeIds;
+    /* A list of similarity scores for the the recipe ids in this mapping. */
     private List<Integer> similarities;
 
     public RecipeIngredientSimilarityMap() {
@@ -28,22 +34,30 @@ public class RecipeIngredientSimilarityMap {
         this.similarities = new ArrayList();
     }
 
+    /**
+     * Adds a recipeId to the list of recipeIds, or increments its similarity value if the id is already present.
+     * @param recipeId the recipeId to add.
+     */
     public void add(int recipeId) {
-        int index = -1;
-        for (int i = 0; i < this.recipeIds.size(); i++) {
+        int index = -1; // Initialise index, -1 indicates the recipeId has not been found.
+        for (int i = 0; i < this.recipeIds.size(); i++) { // Find out if the recipeId is already in the list.
             if (this.recipeIds.get(i) == recipeId) {
                 index = i;
                 break;
             }
         }
-        if (index >= 0) {
+        if (index >= 0) { // The recipeId was already in the list, increment the similarity value.
             this.similarities.set(index, this.similarities.get(index) + 1);
-        } else {
+        } else { // The recipeId was not yet in the list, add a new entry.
             this.recipeIds.add(recipeId);
             this.similarities.add(1);
         }
     }
 
+    /**
+     * Sort both {@code this.recipeIds} and {@code this.similarities} with respect to the the similarities, in
+     * descending order. Based on <a href="https://en.wikipedia.org/wiki/Insertion_sort">Insertion-Sort.</a>
+     */
     public void sortDescending() {
         int i;
         for (int j = 1; j < this.similarities.size(); j++) {

@@ -141,7 +141,7 @@ public class Database {
         ResultSet ingredientList = ExecuteQuery("SELECT `ingredient` FROM `search_ingredients`;", new ArrayList<String>());
         try {
             while (ingredientList.next()) {
-                String ingredient = ingredientList.getString(1);
+                String ingredient = ingredientList.getString(1).trim();
                 aux.add(capitalize(ingredient));
             }
         } catch (SQLException e) {
@@ -198,31 +198,49 @@ public class Database {
         return result;
     }
 
+    /**
+     * Returns the list of ingredients that are allowed for parametersied {@code int accountId}.
+     * @param accountId the identifier of the account to get the allowed ingredients for.
+     * @return a list of ingredient names.
+     */
     public List<String> getAllowedIngredients(int accountId) {
+        // Return all ingredients minus those set as allergens.
         return getListDifference(getSearchIngredients(), getAllergens(accountId));
     }
 
+    /**
+     * Returns the difference {@code (a - b)} of two parameterised {@code List<String> a} and {@code b}.
+     * @param a the list to subtract from.
+     * @param b the list to subtract.
+     * @return the difference (a - b).
+     */
     public List<String> getListDifference(List<String> a, List<String> b) {
         List<String> result = new ArrayList();
-        for (String s : a) {
-            s = s.toLowerCase().trim();
-            boolean isAllowed = true;
-            for (String t : b) {
-                t = t.toLowerCase().trim();
-                if (t.equals(s)) {
+        for (String s : a) { // Iterate over a.
+            s = s.toLowerCase().trim(); // Make String uniform.
+            boolean isAllowed = true; // Assumption.
+            for (String t : b) { // Iterate over b.
+                t = t.toLowerCase().trim(); // Make String uniform.
+                if (t.equals(s)) { // s is present in b.
                     isAllowed = false;
                     break;
                 }
             }
-            if (isAllowed) {
+            if (isAllowed) { // s is not present in b and is allowed.
                 result.add(s);
             }
         }
         return result;
     }
 
+    /**
+     * Returns the list of ingredients that are set as allergens for the account with identifier {@code accountId}.
+     * @param accountId the account identifier of the account to get the allergens for.
+     * @return the list of all allergens for said account.
+     */
     public List<String> getAllergens(int accountId) {
         List<String> result = new ArrayList();
+        /* Query database for allergens belonging to this account identifier. */
         String allergenQuery = "SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + accountId + "';";
         ResultSet allergenResults = ExecuteQuery(allergenQuery, new ArrayList<String>());
         try {
@@ -236,12 +254,29 @@ public class Database {
         return result;
     }
 
+    /**
+     * Returns a list of recipe identifiers, sorted in descending order by their popularity.
+     * Popularity is defined as the follows:
+     * popularity(recipe) = FAVORITE_WEIGHT * favoriteCount(recipe) + MEAL_WEIGHT * mealCount(recipe),
+     * where favoriteCount() and mealCount() denote the number of times a recipe occurs as a favorite- and meal in the
+     * user profiles, respectively.
+     * @return {@code List<Integer>}.
+     */
     public List<Integer> getRecipeIdsByPopularity() {
-        String popularQuery = "SELECT `recipe_id` FROM (SELECT `recipe_id` FROM (SELECT `recipe_id`, SUM(`CNT`) AS `CNT` FROM (SELECT `recipe_id`, 5 * COUNT(`recipe_id`) AS `CNT` FROM `favorites` GROUP BY `recipe_id` UNION ALL SELECT `meal_id` AS `recipe_id`, 1 * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY `meal_id`) AS X GROUP BY `recipe_id` ORDER BY `CNT` DESC) AS Y) AS X UNION ALL (SELECT `id` AS `recipe_id` FROM `recipes` WHERE `id` NOT IN (SELECT `recipe_id` AS `id` FROM (SELECT `recipe_id`, SUM(`CNT`) AS `CNT` FROM (SELECT `recipe_id`, " + FAVORITE_WEIGHT + " * COUNT(`recipe_id`) AS `CNT` FROM `favorites` GROUP BY `recipe_id` UNION ALL SELECT `meal_id` AS `recipe_id`, " + MEAL_WEIGHT + " * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY `meal_id`) AS X GROUP BY `recipe_id` ORDER BY `CNT` DESC) AS Y));";
+        /* Make a hideously complicated query to the database, taking care of counting and sorting. */
+        String popularQuery = "SELECT `recipe_id` FROM (SELECT `recipe_id` FROM (SELECT `recipe_id`, SUM(`CNT`) AS `CNT`" +
+                " FROM (SELECT `recipe_id`, 5 * COUNT(`recipe_id`) AS `CNT` FROM `favorites` GROUP BY `recipe_id`" +
+                " UNION ALL SELECT `meal_id` AS `recipe_id`, 1 * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY" +
+                " `meal_id`) AS X GROUP BY `recipe_id` ORDER BY `CNT` DESC) AS Y) AS X UNION ALL (SELECT `id` AS" +
+                " `recipe_id` FROM `recipes` WHERE `id` NOT IN (SELECT `recipe_id` AS `id` FROM (SELECT `recipe_id`," +
+                " SUM(`CNT`) AS `CNT` FROM (SELECT `recipe_id`, " + FAVORITE_WEIGHT + " * COUNT(`recipe_id`) AS `CNT`" +
+                " FROM `favorites` GROUP BY `recipe_id` UNION ALL SELECT `meal_id` AS `recipe_id`, " + MEAL_WEIGHT +
+                " * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY `meal_id`) AS X GROUP BY `recipe_id` ORDER BY" +
+                " `CNT` DESC) AS Y));";
         List<Integer> result = new ArrayList();
         ResultSet popularResults = ExecuteQuery(popularQuery, new ArrayList<String>());
         try {
-            while (popularResults.next()) {
+            while (popularResults.next()) { // Add the results of the query.
                 result.add(popularResults.getInt(1));
             }
         } catch (SQLException e) {

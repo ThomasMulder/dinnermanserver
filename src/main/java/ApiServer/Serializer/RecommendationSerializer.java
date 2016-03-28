@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * Created by s124392 on 21-3-2016.
+ * Serializes an instance of {@code List<Recipe>} to a JSON-object.
+ * Almost identical to {@code RecipeListSerializer}, differs only in attribute name ("recommendations" vs. "recipes").
  */
 public class RecommendationSerializer implements JsonSerializer<List<Recipe>> {
 
