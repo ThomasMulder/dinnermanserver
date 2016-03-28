@@ -30,6 +30,8 @@ public class ApiServer {
         router.attach("/recipe/{username}/{authToken}/recommendation", new RecommendationResource());
         router.attach("/recipe/{username}/{authToken}/schedule/reroll/{schedule}", new RerollResource());
         router.attach("/recipe/{username}/{authToken}/use/{ingredients}", new IngredientResource());
+        router.attach("/recipe/{username}/{authToken}/nutrition/{minCalories}/{maxCalories}/{minFat}/{maxFat}/" +
+                "{minProtein}/{maxProtein}/{minCarbs}/{maxCarbs}", new NutritionResource());
         router.attach("/test", new TestResource());
 
         Application restRouter = new Application() {

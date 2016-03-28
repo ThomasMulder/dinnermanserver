@@ -7,10 +7,10 @@ import com.google.gson.JsonObject;
  * A data-type representing a recipe.
  */
 public class Recipe {
-    private int id, servings, preparationMinutes, cookingMinutes, readyInMinutes;
-    private String title, image, cuisine, calories, fat, protein, carbs, summary, instructions, ingredients;
+    private int id, servings, preparationMinutes, cookingMinutes, readyInMinutes, calories, fat, protein, carbs;
+    private String title, image, cuisine, summary, instructions, ingredients;
 
-    public Recipe(int id, int servings, int preparationMinutes, int cookingMinutes, int readyInMinutes, String title, String image, String cuisine, String calories, String fat, String protein, String carbs, String summary, String instructions, String ingredients) {
+    public Recipe(int id, int servings, int preparationMinutes, int cookingMinutes, int readyInMinutes, String title, String image, String cuisine, int calories, int fat, int protein, int carbs, String summary, String instructions, String ingredients) {
         this.id = id;
         this.servings = servings;
         this.preparationMinutes = preparationMinutes;
@@ -92,35 +92,35 @@ public class Recipe {
         this.cuisine = cuisine;
     }
 
-    public String getCalories() {
+    public int getCalories() {
         return calories;
     }
 
-    public void setCalories(String calories) {
+    public void setCalories(int calories) {
         this.calories = calories;
     }
 
-    public String getFat() {
+    public int getFat() {
         return fat;
     }
 
-    public void setFat(String fat) {
+    public void setFat(int fat) {
         this.fat = fat;
     }
 
-    public String getProtein() {
+    public int getProtein() {
         return protein;
     }
 
-    public void setProtein(String protein) {
+    public void setProtein(int protein) {
         this.protein = protein;
     }
 
-    public String getCarbs() {
+    public int getCarbs() {
         return carbs;
     }
 
-    public void setCarbs(String carbs) {
+    public void setCarbs(int carbs) {
         this.carbs = carbs;
     }
 
@@ -163,10 +163,10 @@ public class Recipe {
         if (!title.equals(recipe.title)) return false;
         if (!image.equals(recipe.image)) return false;
         if (!cuisine.equals(recipe.cuisine)) return false;
-        if (!calories.equals(recipe.calories)) return false;
-        if (!fat.equals(recipe.fat)) return false;
-        if (!protein.equals(recipe.protein)) return false;
-        if (!carbs.equals(recipe.carbs)) return false;
+        if (calories != recipe.calories) return false;
+        if (fat != recipe.fat) return false;
+        if (protein != recipe.protein) return false;
+        if (carbs != recipe.carbs) return false;
         if (!summary.equals(recipe.summary)) return false;
         if (!instructions.equals(recipe.instructions)) return false;
         return ingredients.equals(recipe.ingredients);
