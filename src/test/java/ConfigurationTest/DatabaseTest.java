@@ -39,6 +39,9 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code getSearchIngredients()} method of the {@code Database} class.
+     */
     public void testGetSearchIngredients() throws Exception {
         List<String> ingredients = Database.getInstance().getSearchIngredients();
         List<String> expected = new ArrayList();
@@ -88,6 +91,9 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code getAllowedRecipeIds()} method of the {@code Database} class.
+     */
     public void testGetAllowedRecipeIds() throws Exception {
         List<Integer> ids = Database.getInstance().getAllowedRecipeIds(1);
         List<Integer> expected = new ArrayList();
@@ -134,6 +140,9 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code getAllowedIngredients()} method of the {@code Database} class.
+     */
     public void testGetAllowedIngredients() throws Exception {
         List<String> ingredients = Database.getInstance().getAllowedIngredients(1);
         List<String> expected = new ArrayList();
@@ -180,6 +189,9 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code getListDifference()} method of the {@code Database} class.
+     */
     public void testGetListDifference() throws Exception {
         List<String> a = new ArrayList();
         List<String> b = new ArrayList();
@@ -192,6 +204,9 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code getAllergens()} method of the {@code Database} class.
+     */
     public void testGetAllergens() throws Exception {
         List<String> allergens = Database.getInstance().getAllergens(1);
         List<String> expected = new ArrayList();
@@ -205,6 +220,9 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code getRecipeIdsByPopularity()} method of the {@code Database} class.
+     */
     public void testGetRecipeIdsByPopularity() throws Exception {
         List<Integer> ids = Database.getInstance().getRecipeIdsByPopularity();
         String idString = "";
@@ -271,6 +289,9 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code listContains()} method of the {@code Database} class.
+     */
     public void testListContains() throws Exception {
         List<Integer> aux = new ArrayList();
         aux.add(1);
@@ -279,10 +300,31 @@ public class DatabaseTest {
     }
 
     @Test
+    /**
+     * Tests the {@code listContains()} method of the {@code Database} class.
+     */
     public void testListContains1() throws Exception {
         List<String> aux = new ArrayList();
         aux.add("a");
         assertTrue(Database.getInstance().listContains(aux, "a"));
         assertFalse(Database.getInstance().listContains(aux, "b"));
+    }
+
+    @Test
+    /**
+     * Tests the {@code isValidRecipeId()} method of the {@code Database} class.
+     */
+    public void testIsValidRecipeId() throws Exception {
+        assertTrue(Database.getInstance().isValidIngredient("leeks"));
+        assertFalse(Database.getInstance().isValidIngredient("chili"));
+    }
+
+    @Test
+    /**
+     * Tests the {@code isValidIngredient()} method of the {@code Database} class.
+     */
+    public void testIsValidIngredient() throws Exception {
+        assertTrue(Database.getInstance().isValidRecipeId(528051));
+        assertFalse(Database.getInstance().isValidRecipeId(1));
     }
 }

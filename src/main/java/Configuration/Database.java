@@ -263,7 +263,7 @@ public class Database {
      * @return {@code List<Integer>}.
      */
     public List<Integer> getRecipeIdsByPopularity() {
-        /* Make a hideously complicated query to the database, taking care of counting and sorting. */
+        /* Make a hideously verbose query to the database, taking care of counting and sorting. */
         String popularQuery = "SELECT `recipe_id` FROM (SELECT `recipe_id` FROM (SELECT `recipe_id`, SUM(`CNT`) AS `CNT`" +
                 " FROM (SELECT `recipe_id`, 5 * COUNT(`recipe_id`) AS `CNT` FROM `favorites` GROUP BY `recipe_id`" +
                 " UNION ALL SELECT `meal_id` AS `recipe_id`, 1 * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY" +
@@ -292,7 +292,9 @@ public class Database {
      * @return {@code boolean}.
      */
     public boolean listContains(List<String> list, String string) {
+        string = string.toLowerCase().trim();
         for (String s : list) {
+            s = s.toLowerCase().trim();
             if (s.equals(string)) {
                 return true;
             }
@@ -311,6 +313,45 @@ public class Database {
             if (i == x) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether or not parameterised {@code String ingredient} is a valid ingredient identifier.
+     * An identifier is said to be valid if and only if it occurs in the `ingredient` column of the `search_ingredients`
+     * table.
+     * @param ingredient the ingredient to check validity for.
+     * @return
+     */
+    public boolean isValidIngredient(String ingredient) {
+        List<String> allowedIngredients = getSearchIngredients();
+        if (listContains(allowedIngredients, ingredient)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether or not parameterised {@code int id} is a valid recipe identifier.
+     * An identifier is said to be valid if and only if it occurs in the `id` column of the `recipes` table.
+     * @param id the identifier to check validity for.
+     * @return
+     */
+    public boolean isValidRecipeId(int id) {
+        List<Integer> allowedIds = new ArrayList();
+        String idQuery = "SELECT `id` FROM `recipes`;";
+        ResultSet resultSet = ExecuteQuery(idQuery, new ArrayList<String>());
+        try { // Get all recipe ids.
+            while (resultSet.next()) {
+                allowedIds.add(resultSet.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (listContains(allowedIds, id)) {
+            return true;
         }
         return false;
     }

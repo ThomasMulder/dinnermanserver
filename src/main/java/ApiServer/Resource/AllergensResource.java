@@ -18,8 +18,11 @@ public class AllergensResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            for (String allergen : getIdentifiersAsString(data)) {
-                Database.getInstance().ExecuteUpdate("INSERT INTO `allergens` (`account_id`, `allergen`) VALUES ('" + account_id + "', '" + allergen + "');", new ArrayList<String>());
+            for (String allergen : getIdentifiersAsString(data)) { // Add new data.
+                if (Database.getInstance().isValidIngredient(allergen)) { // Is a valid allergen identifier.
+                    Database.getInstance().ExecuteUpdate("INSERT INTO `allergens` (`account_id`, `allergen`) VALUES" +
+                            " ('" + account_id + "', '" + allergen + "');", new ArrayList<String>());
+                }
             }
             this.returnStatus(response, new SuccessStatus(null));
         } else {

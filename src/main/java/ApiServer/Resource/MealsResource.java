@@ -17,8 +17,11 @@ public class MealsResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            for (int id : getIdentifiersAsInteger(data)) {
-                Database.getInstance().ExecuteUpdate("INSERT INTO `meals` (`account_id`, `meal_id`) VALUES ('" + account_id + "', '" + id + "');", new ArrayList<String>());
+            for (int id : getIdentifiersAsInteger(data)) { // Add new data.
+                if (Database.getInstance().isValidRecipeId(id)) { // Is a valid recipe identifier.
+                    Database.getInstance().ExecuteUpdate("INSERT INTO `meals` (`account_id`, `meal_id`) VALUES" +
+                            " ('" + account_id + "', '" + id + "');", new ArrayList<String>());
+                }
             }
             this.returnStatus(response, new SuccessStatus(null));
         } else {

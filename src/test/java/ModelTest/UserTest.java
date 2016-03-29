@@ -1,5 +1,6 @@
 package ModelTest;
 
+import Configuration.Database;
 import Model.User;
 import org.junit.Test;
 

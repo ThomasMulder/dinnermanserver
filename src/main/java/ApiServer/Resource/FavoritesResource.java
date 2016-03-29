@@ -18,8 +18,11 @@ public class FavoritesResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            for (int id : getIdentifiersAsInteger(data)) {
-                Database.getInstance().ExecuteUpdate("INSERT INTO `favorites` (`account_id`, `recipe_id`) VALUES ('" + account_id + "', '" + id + "');", new ArrayList<String>());
+            for (int id : getIdentifiersAsInteger(data)) { // Add new data.
+                if (Database.getInstance().isValidRecipeId(id)) { // Is an allowed recipe identifier.
+                    Database.getInstance().ExecuteUpdate("INSERT INTO `favorites` (`account_id`, `recipe_id`) VALUES" +
+                            " ('" + account_id + "', '" + id + "');", new ArrayList<String>());
+                }
             }
             this.returnStatus(response, new SuccessStatus(null));
         } else {
