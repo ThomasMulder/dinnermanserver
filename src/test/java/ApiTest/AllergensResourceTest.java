@@ -16,7 +16,9 @@ public class AllergensResourceTest {
     @Test
     public void testHandlePostAndDelete() throws Exception {
         String token = ApiAuthenticator.getInstance().getToken();
-        assertTrue(this.apiTestFacility.testEndpoint("http://localhost:8008/api/user/test/" + token + "/addAllergens", "POST", "cheese", new AllergensAddResourceTest()));
-        assertTrue(this.apiTestFacility.testEndpoint("http://localhost:8008/api/user/test/" + token + "/deleteAllergens", "DELETE", "cheese", new AllergensAddResourceTest()));
+        assertTrue(this.apiTestFacility.testEndpoint("http://localhost:8008/api/user/test/" + token + "/addAllergens",
+                "POST", "cheese", new AllergensAddResourceTest()));
+        assertTrue(this.apiTestFacility.testEndpoint("http://localhost:8008/api/user/test/" + token + "/deleteAllergens",
+                "DELETE", "cheese", new AllergensAddResourceTest()));
     }
 }
