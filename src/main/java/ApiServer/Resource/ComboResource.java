@@ -52,7 +52,7 @@ public class ComboResource extends ApiResource {
             }
             List<Integer> allowedRecipeIds = getListIntegerIntersection(allowedIds, recipeIds);
             for (String s : ingredientsIntersection) {
-                String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "\\r';";
+                String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "';";
                 ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
                 try {
                     while (recipeResults.next()) {

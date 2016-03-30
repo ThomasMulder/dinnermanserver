@@ -63,8 +63,8 @@ public class DatabaseTest {
         expected.add("Spinach");
         expected.add("Sugar");
         expected.add("Shrimp");
-        expected.add("Milk");
         expected.add("Rice");
+        expected.add("Milk");
         expected.add("Peanut");
         expected.add("Onions");
         expected.add("Mushrooms");
@@ -86,6 +86,7 @@ public class DatabaseTest {
         expected.add("Noodles");
         assertTrue(ingredients.size() == expected.size());
         for (int i = 0; i < ingredients.size(); i++) {
+            //System.out.println(ingredients.get(i));
             assertTrue(ingredients.get(i).equals(expected.get(i)));
         }
     }
@@ -217,75 +218,6 @@ public class DatabaseTest {
         for (int i = 0; i < allergens.size(); i++) {
             assertTrue(allergens.get(i).equals(expected.get(i)));
         }
-    }
-
-    @Test
-    /**
-     * Tests the {@code getRecipeIdsByPopularity()} method of the {@code Database} class.
-     */
-    public void testGetRecipeIdsByPopularity() throws Exception {
-        List<Integer> ids = Database.getInstance().getRecipeIdsByPopularity();
-        String idString = "";
-        for (int id : ids) {
-            idString = idString.concat(String.valueOf(id).trim() + "\n");
-        }
-        String expected = "528051\n" +
-                "536703\n" +
-                "433338\n" +
-                "549277\n" +
-                "621105\n" +
-                "464832\n" +
-                "449585\n" +
-                "78238\n" +
-                "552811\n" +
-                "40023\n" +
-                "67207\n" +
-                "374273\n" +
-                "715038\n" +
-                "239068\n" +
-                "384740\n" +
-                "470413\n" +
-                "701803\n" +
-                "666239\n" +
-                "150074\n" +
-                "474640\n" +
-                "519356\n" +
-                "540890\n" +
-                "471817\n" +
-                "112272\n" +
-                "427600\n" +
-                "204018\n" +
-                "470869\n" +
-                "233128\n" +
-                "559401\n" +
-                "584911\n" +
-                "266072\n" +
-                "537481\n" +
-                "29176\n" +
-                "297516\n" +
-                "562219\n" +
-                "3339\n" +
-                "576257\n" +
-                "374990\n" +
-                "226742\n" +
-                "241186\n" +
-                "247117\n" +
-                "558752\n" +
-                "599167\n" +
-                "202492\n" +
-                "521781\n" +
-                "315576\n" +
-                "320701\n" +
-                "168766\n" +
-                "166373\n" +
-                "434151\n" +
-                "391293\n" +
-                "269186\n" +
-                "535108\n" +
-                "548826\n" +
-                "598787\n" +
-                "349362\n";
-        assertTrue(idString.equals(expected));
     }
 
     @Test
