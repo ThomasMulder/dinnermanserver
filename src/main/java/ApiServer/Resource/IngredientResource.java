@@ -31,7 +31,8 @@ public class IngredientResource extends ApiResource {
             RecipeIngredientSimilarityMap similarity = new RecipeIngredientSimilarityMap();
             List<Integer> allowedIds = Database.getInstance().getAllowedRecipeIds(account_id);
             for (String s : ingredientsIntersection) {
-                String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "\\r';";
+                String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "';";
+                System.out.println(recipeQuery);
                 ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
                 try {
                     while (recipeResults.next()) {
