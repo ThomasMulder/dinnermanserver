@@ -59,7 +59,7 @@ public class HttpConnection {
 
     private String[] sendDataRequest(String url, String method, String data) throws Exception {
         URL obj = new URL(url);
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
         //add request header
         con.setRequestMethod(method);
