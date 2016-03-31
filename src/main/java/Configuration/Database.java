@@ -1,5 +1,7 @@
 package Configuration;
 
+import Model.Recipe;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -189,6 +191,25 @@ public class Database {
                     if (listContains(allergens, ingredient)) {
                         recipeIsAllowed = false;
                         break;
+                    }
+                }
+                /* Additional 'soft' check in the plaintext description of ingredients. */
+                if (recipeIsAllowed) {
+                    String ingredientsQuery = "SELECT `ingredients` FROM `recipes` WHERE `id` = " + recipeId + ";";
+                    ResultSet resultSet = ExecuteQuery(ingredientsQuery, new ArrayList<String>());
+                    try {
+                        while (resultSet.next()) {
+                            String ingredientsText = resultSet.getString(1).toLowerCase();
+                            for (String allergen : allergens) {
+                                if (ingredientsText.contains(allergen)) {
+                                    //System.out.println("Found: " + allergen + " in text.");
+                                    recipeIsAllowed = false;
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
                 }
                 if (recipeIsAllowed) { // The recipe is allowed with respect to the user's allergens.
