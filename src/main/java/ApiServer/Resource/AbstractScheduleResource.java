@@ -1,6 +1,7 @@
 package ApiServer.Resource;
 
 import Configuration.Database;
+import Processing.Utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,7 +40,7 @@ public abstract class AbstractScheduleResource extends ApiResource {
 
     private String generateRandomCuisine() {
         List<String> cuisines = Database.getInstance().getCuisines();
-        return cuisines.get(getRandomIndex(cuisines)).toLowerCase();
+        return cuisines.get(utils.getRandomIndexFromList(cuisines)).toLowerCase();
     }
 
     protected boolean isCompleteSchedule(int accountId, String[] schedule) {
@@ -64,19 +65,8 @@ public abstract class AbstractScheduleResource extends ApiResource {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return getIntegerListIntersection(cuisineIds, allowedIds);
+        return Utils.getInstance().getListIntegerIntersection(cuisineIds, allowedIds);
     }
 
-    private List<Integer> getIntegerListIntersection(List<Integer> a, List<Integer> b) {
-        List<Integer> result = new ArrayList();
-        for (int x : a) {
-            for (int y : b) {
-                if (x == y) {
-                    result.add(x);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
+
 }

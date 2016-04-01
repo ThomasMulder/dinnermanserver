@@ -5,6 +5,7 @@ import ApiServer.Status.IllegalStateStatus;
 import Configuration.Database;
 import Model.Recipe;
 import Model.RecipeIngredientSimilarityMap;
+import Processing.Utils;
 import org.restlet.Request;
 import org.restlet.Response;
 
@@ -18,6 +19,7 @@ import java.util.List;
  */
 public class ComboResource extends ApiResource {
     private static final int MAX_RESULTS = 5;
+
     @Override
     protected void handleGet(Request request, Response response) throws  IllegalArgumentException {
         int account_id = getAccountId(request, response);
@@ -26,7 +28,7 @@ public class ComboResource extends ApiResource {
             String ingredientString = String.valueOf(request.getAttributes().get("ingredients"));
             String[] ingredients = ingredientString.split(",");
             List<String> allowedIngredients = Database.getInstance().getAllowedIngredients(account_id);
-            List<String> ingredientsIntersection = getIntersection(ingredients, allowedIngredients);
+            List<String> ingredientsIntersection = utils.getArrayAndListIntersection(ingredients, allowedIngredients, false);
             RecipeIngredientSimilarityMap similarity = new RecipeIngredientSimilarityMap();
             List<Integer> allowedIds = Database.getInstance().getAllowedRecipeIds(account_id);
             int minCalories = Integer.parseInt(String.valueOf(request.getAttributes().get("minCalories")));
@@ -50,14 +52,14 @@ public class ComboResource extends ApiResource {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            List<Integer> allowedRecipeIds = getListIntegerIntersection(allowedIds, recipeIds);
+            List<Integer> allowedRecipeIds = utils.getListIntegerIntersection(allowedIds, recipeIds);
             for (String s : ingredientsIntersection) {
                 String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "';";
                 ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
                 try {
                     while (recipeResults.next()) {
                         int i = recipeResults.getInt(1);
-                        if (Database.getInstance().listContains(allowedRecipeIds, i)) {
+                        if (utils.listContains(allowedRecipeIds, i)) {
                             similarity.add(i);
                         }
                     }

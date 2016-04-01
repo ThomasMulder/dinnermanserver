@@ -43,7 +43,7 @@ public class NutritionResource extends ApiResource {
                 e.printStackTrace();
             }
             List<Integer> allowedRecipeIds = Database.getInstance().getAllowedRecipeIds(account_id);
-            List<Integer> intersection = getListIntegerIntersection(recipeIds, allowedRecipeIds);
+            List<Integer> intersection = utils.getListIntegerIntersection(recipeIds, allowedRecipeIds);
             List<Recipe> recipes = new ArrayList();
             for (int i : intersection) {
                 recipes.add(getRecipeById(i));

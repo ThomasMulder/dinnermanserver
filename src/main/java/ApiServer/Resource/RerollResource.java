@@ -48,8 +48,8 @@ public class RerollResource extends AbstractScheduleResource {
             } else {
                 List<Integer> allowedByCuisine = getAllowedCuisineIds(account_id, cuisineSchedule[rerollIndex]);
                 List<Integer> allowedByAllergens = Database.getInstance().getAllowedRecipeIds(account_id);
-                List<Integer> allowedIds = getListIntegerIntersection(allowedByCuisine, allowedByAllergens);
-                int id = allowedIds.get(getRandomIndex(allowedIds));
+                List<Integer> allowedIds = utils.getListIntegerIntersection(allowedByCuisine, allowedByAllergens);
+                int id = allowedIds.get(utils.getRandomIndexFromList(allowedIds));
                 makeRecipeResponse(response, id);
             }
         }
@@ -57,9 +57,9 @@ public class RerollResource extends AbstractScheduleResource {
 
     private String findNewCuisine(String left, String right) {
         List<String> cuisines = Database.getInstance().getCuisines();
-        String result = cuisines.get(getRandomIndex(cuisines));
+        String result = cuisines.get(utils.getRandomIndexFromList(cuisines));
         while ((left != null && left.equals(result) || (right != null && right.equals(result)))) {
-            result = cuisines.get(getRandomIndex(cuisines));
+            result = cuisines.get(utils.getRandomIndexFromList(cuisines));
         }
         return result;
     }

@@ -18,7 +18,7 @@ public class RandomResource extends ApiResource {
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
             List<Integer> idList = Database.getInstance().getAllowedRecipeIds(account_id);
-            makeRecipeResponse(response, idList.get(getRandomIndex(idList)));
+            makeRecipeResponse(response, idList.get(utils.getRandomIndexFromList(idList)));
         }
     }
 }

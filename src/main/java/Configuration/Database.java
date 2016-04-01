@@ -1,6 +1,6 @@
 package Configuration;
 
-import Model.Recipe;
+import Processing.Utils;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,6 +15,7 @@ import java.util.Set;
 public class Database {
     /* Start Singleton */
     private static Database instance = null;
+    private static Utils utils = Utils.getInstance();
 
     private static final int FAVORITE_WEIGHT = 5;
     private static final int MEAL_WEIGHT = 1;
@@ -188,7 +189,7 @@ public class Database {
                 }
                 boolean recipeIsAllowed = true;
                 for (String ingredient : ingredients) { // Check whether or not the recipe contains an allergen.
-                    if (listContains(allergens, ingredient)) {
+                    if (utils.listContains(allergens, ingredient, false)) {
                         recipeIsAllowed = false;
                         break;
                     }
@@ -226,33 +227,10 @@ public class Database {
      */
     public List<String> getAllowedIngredients(int accountId) {
         // Return all ingredients minus those set as allergens.
-        return getListDifference(getSearchIngredients(), getAllergens(accountId));
+        return utils.getListStringDifference(getSearchIngredients(), getAllergens(accountId), false);
     }
 
-    /**
-     * Returns the difference {@code (a - b)} of two parameterised {@code List<String> a} and {@code b}.
-     * @param a the list to subtract from.
-     * @param b the list to subtract.
-     * @return the difference (a - b).
-     */
-    public List<String> getListDifference(List<String> a, List<String> b) {
-        List<String> result = new ArrayList();
-        for (String s : a) { // Iterate over a.
-            s = s.toLowerCase().trim(); // Make String uniform.
-            boolean isAllowed = true; // Assumption.
-            for (String t : b) { // Iterate over b.
-                t = t.toLowerCase().trim(); // Make String uniform.
-                if (t.equals(s)) { // s is present in b.
-                    isAllowed = false;
-                    break;
-                }
-            }
-            if (isAllowed) { // s is not present in b and is allowed.
-                result.add(s);
-            }
-        }
-        return result;
-    }
+
 
     /**
      * Returns the list of ingredients that are set as allergens for the account with identifier {@code accountId}.
@@ -307,38 +285,6 @@ public class Database {
     }
 
     /**
-     * Checks whether or not {@code List<String> list} contains {@code String string}.
-     * @param list the list to check in.
-     * @param string the string to check for.
-     * @return {@code boolean}.
-     */
-    public boolean listContains(List<String> list, String string) {
-        string = string.toLowerCase().trim();
-        for (String s : list) {
-            s = s.toLowerCase().trim();
-            if (s.equals(string)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether or not {@code List<String> list} contains {@code String string}.
-     * @param list the list to check in.
-     * @param x the string to check for.
-     * @return {@code boolean}.
-     */
-    public boolean listContains(List<Integer> list, int x) {
-        for (int i : list) {
-            if (i == x) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Checks whether or not parameterised {@code String ingredient} is a valid ingredient identifier.
      * An identifier is said to be valid if and only if it occurs in the `ingredient` column of the `search_ingredients`
      * table.
@@ -347,7 +293,7 @@ public class Database {
      */
     public boolean isValidIngredient(String ingredient) {
         List<String> allowedIngredients = getSearchIngredients();
-        if (listContains(allowedIngredients, ingredient)) {
+        if (utils.listContains(allowedIngredients, ingredient, false)) {
             return true;
         }
         return false;
@@ -371,7 +317,7 @@ public class Database {
             e.printStackTrace();
             return false;
         }
-        if (listContains(allowedIds, id)) {
+        if (utils.listContains(allowedIds, id)) {
             return true;
         }
         return false;

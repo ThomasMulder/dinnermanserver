@@ -190,21 +190,6 @@ public class DatabaseTest {
 
     @Test
     /**
-     * Tests the {@code getListDifference()} method of the {@code Database} class.
-     */
-    public void testGetListDifference() throws Exception {
-        List<String> a = new ArrayList();
-        List<String> b = new ArrayList();
-        a.add("a");
-        a.add("b");
-        b.add("b");
-        List<String> diff = Database.getInstance().getListDifference(a, b);
-        assertTrue(diff.size() == 1);
-        assertTrue(diff.get(0).equals("a"));
-    }
-
-    @Test
-    /**
      * Tests the {@code getAllergens()} method of the {@code Database} class.
      */
     public void testGetAllergens() throws Exception {
@@ -217,28 +202,6 @@ public class DatabaseTest {
         for (int i = 0; i < allergens.size(); i++) {
             assertTrue(allergens.get(i).equals(expected.get(i)));
         }
-    }
-
-    @Test
-    /**
-     * Tests the {@code listContains()} method of the {@code Database} class.
-     */
-    public void testListContains() throws Exception {
-        List<Integer> aux = new ArrayList();
-        aux.add(1);
-        assertTrue(Database.getInstance().listContains(aux, 1));
-        assertFalse(Database.getInstance().listContains(aux, 2));
-    }
-
-    @Test
-    /**
-     * Tests the {@code listContains()} method of the {@code Database} class.
-     */
-    public void testListContains1() throws Exception {
-        List<String> aux = new ArrayList();
-        aux.add("a");
-        assertTrue(Database.getInstance().listContains(aux, "a"));
-        assertFalse(Database.getInstance().listContains(aux, "b"));
     }
 
     @Test

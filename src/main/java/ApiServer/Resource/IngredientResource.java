@@ -5,6 +5,7 @@ import ApiServer.Status.IllegalStateStatus;
 import Configuration.Database;
 import Model.Recipe;
 import Model.RecipeIngredientSimilarityMap;
+import Processing.Utils;
 import org.restlet.Request;
 import org.restlet.Response;
 
@@ -27,7 +28,7 @@ public class IngredientResource extends ApiResource {
             String ingredientString = String.valueOf(request.getAttributes().get("ingredients"));
             String[] ingredients = ingredientString.split(",");
             List<String> allowedIngredients = Database.getInstance().getAllowedIngredients(account_id);
-            List<String> ingredientsIntersection = getIntersection(ingredients, allowedIngredients);
+            List<String> ingredientsIntersection = utils.getArrayAndListIntersection(ingredients, allowedIngredients, false);
             RecipeIngredientSimilarityMap similarity = new RecipeIngredientSimilarityMap();
             List<Integer> allowedIds = Database.getInstance().getAllowedRecipeIds(account_id);
             for (String s : ingredientsIntersection) {
@@ -36,7 +37,7 @@ public class IngredientResource extends ApiResource {
                 try {
                     while (recipeResults.next()) {
                         int i = recipeResults.getInt(1);
-                        if (Database.getInstance().listContains(allowedIds, i)) {
+                        if (utils.listContains(allowedIds, i)) {
                             similarity.add(i);
                         }
                     }

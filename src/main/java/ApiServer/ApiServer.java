@@ -21,8 +21,6 @@ public class ApiServer {
         router.attach("/user/{username}/{authToken}/deleteFavorites", new FavoritesResource());
         router.attach("/user/{username}/{authToken}/addAllergens", new AllergensResource());
         router.attach("/user/{username}/{authToken}/deleteAllergens", new AllergensResource());
-        router.attach("/user/{username}/{authToken}/addMeals", new MealsResource());
-        router.attach("/user/{username}/{authToken}/deleteMeals", new MealsResource());
         router.attach("/user/{username}/{authToken}/profile", new UserResource());
         router.attach("/recipe/{username}/{authToken}/specific/{id}", new RecipeResource());
         router.attach("/recipe/{username}/{authToken}/random", new RandomResource());

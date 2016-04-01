@@ -9,6 +9,7 @@ import ApiServer.Serializer.Serializer;
 import Configuration.Database;
 import Model.Recipe;
 import Model.User;
+import Processing.Utils;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSerializer;
 import org.restlet.Request;
@@ -25,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public abstract class ApiResource extends Restlet {
+    protected static Utils utils = Utils.getInstance();
     @Override
     public void handle(Request request, Response response) {
         String data = null;
@@ -259,53 +261,6 @@ public abstract class ApiResource extends Restlet {
             e.printStackTrace();
         }
         return new User(username, favorites, allergens, meals);
-    }
-
-    protected int getRandomIndex(List list) {
-        return (int) Math.round(Math.random() * (list.size() - 1));
-    }
-
-    protected List<String> getIntersection(String[] a, List<String> b) {
-        List<String> result = new ArrayList();
-        for (String s : b) {
-            s = s.toLowerCase().trim();
-            for (String t : a) {
-                t = t.toLowerCase().trim();
-                if (s.equals(t)) {
-                    result.add(s);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    protected List<String> getListStringIntersection(List<String> a, List<String> b) {
-        List<String> result = new ArrayList();
-        for (String s : a) {
-            s = s.toLowerCase().trim();
-            for (String t : b) {
-                t = t.toLowerCase().trim();
-                if (s.equals(t)) {
-                    result.add(s);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    protected List<Integer> getListIntegerIntersection(List<Integer> a, List<Integer> b) {
-        List<Integer> result = new ArrayList();
-        for (int i : a) {
-            for (int j : b) {
-                if (i == j) {
-                    result.add(i);
-                    break;
-                }
-            }
-        }
-        return result;
     }
 
     private void checkData(String data) {

@@ -51,14 +51,14 @@ public class RecommendationResource extends ApiResource {
                 User u = usersBySimilarity.get(i);
                 List<Integer> diff = getFavoriteMealDifference(user, u);
                 for (int j = 0; j < Math.min(NUM_RECIPES - recommendationIds.size(), diff.size()); j++) {
-                    insertUnique(recommendationIds, diff.get(j));
+                    utils.insertUniqueInteger(recommendationIds, diff.get(j));
                 }
                 i++;
             }
             List<Integer> recipesByPopularity = Database.getInstance().getRecipeIdsByPopularity();
             i = 0;
             while(recommendationIds.size() < NUM_RECIPES) {
-                insertUnique(recommendationIds, recipesByPopularity.get(i));
+                utils.insertUniqueInteger(recommendationIds, recipesByPopularity.get(i));
                 i++;
             }
             List<Recipe> recipes = new ArrayList();
@@ -122,18 +122,5 @@ public class RecommendationResource extends ApiResource {
             result.put( entry.getKey(), entry.getValue() );
         }
         return result;
-    }
-
-    private void insertUnique(List<Integer> l, int x) {
-        boolean contains = false;
-        for (int i : l) {
-            if (i == x) {
-                contains = true;
-                break;
-            }
-        }
-        if (!contains) {
-            l.add(x);
-        }
     }
 }

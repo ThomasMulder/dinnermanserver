@@ -27,8 +27,8 @@ public class ScheduleResource extends AbstractScheduleResource {
             for (String cuisine : cuisineSchedule) {
                 List<Integer> allowedByCuisine = getAllowedCuisineIds(account_id, cuisine);
                 List<Integer> allowedByAllergen = Database.getInstance().getAllowedRecipeIds(account_id);
-                List<Integer> allowedIds = getListIntegerIntersection(allowedByCuisine, allowedByAllergen);
-                int id = allowedIds.get(getRandomIndex(allowedIds));
+                List<Integer> allowedIds = utils.getListIntegerIntersection(allowedByCuisine, allowedByAllergen);
+                int id = allowedIds.get(utils.getRandomIndexFromList(allowedIds));
                 schedule.add(getRecipeById(id));
             }
             this.returnResponse(response, schedule, new ScheduleSerializer());
