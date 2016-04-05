@@ -27,11 +27,6 @@ public class UserSerializer implements JsonSerializer<User> {
             allergens.add(obj);
         }
         object.add("allergens", allergens);
-        JsonArray meals = new JsonArray();
-        for (int id : user.getMeals()) { // Separately serialize the meals list and add as array.
-            meals.add(jsonSerializationContext.serialize(id));
-        }
-        object.add("meals", meals);
         return object;
     }
 }

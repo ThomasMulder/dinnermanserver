@@ -22,8 +22,7 @@ public class UserResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            String username = String.valueOf(request.getAttributes().get("username"));
-            this.returnResponse(response, getUser(account_id, username), new UserSerializer());
+            this.returnResponse(response, Database.getInstance().getUserById(account_id), new UserSerializer());
         } else {
             this.returnStatus(response, new IllegalArgumentStatus(null));
         }

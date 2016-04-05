@@ -232,37 +232,6 @@ public abstract class ApiResource extends Restlet {
         }
     }
 
-    protected User getUser(int id, String username) {
-        List<Integer> favorites = new ArrayList();
-        List<String> allergens = new ArrayList();
-        List<Integer> meals = new ArrayList();
-        ResultSet result = Database.getInstance().ExecuteQuery("SELECT `recipe_id` FROM `favorites` WHERE `account_id` = '" + id + "';", new ArrayList<String>());
-        try {
-            while (result.next()) {
-                favorites.add(result.getInt(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        result = Database.getInstance().ExecuteQuery("SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + id + "';", new ArrayList<String>());
-        try {
-            while (result.next()) {
-                allergens.add(result.getString(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        result = Database.getInstance().ExecuteQuery("SELECT `meal_id` FROM `meals` WHERE `account_id` = '" + id + "';", new ArrayList<String>());
-        try {
-            while (result.next()) {
-                meals.add(result.getInt(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return new User(username, favorites, allergens, meals);
-    }
-
     private void checkData(String data) {
         if (data == null) {
             throw new IllegalArgumentException("Invalid data provided.");

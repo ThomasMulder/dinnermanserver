@@ -23,16 +23,14 @@ public class RecommendationResource extends ApiResource {
         int account_id = getAccountId(request, response);
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
-            String username = String.valueOf(request.getAttributes().get("username"));
-            User user = getUser(account_id, username);
+            User user = Database.getInstance().getUserById(account_id);
             List<User> otherUsers = new ArrayList();
             String userQuery = "SELECT `id`, `username` FROM `accounts` WHERE `id` != '" + account_id + "';";
             ResultSet userResults = Database.getInstance().ExecuteQuery(userQuery, new ArrayList<String>());
             try {
                 while (userResults.next()) {
                     int id = userResults.getInt(1);
-                    String name = userResults.getString(2);
-                    otherUsers.add(getUser(id, name));
+                    otherUsers.add(Database.getInstance().getUserById(id));
                 }
             } catch (SQLException e) {
                 this.returnStatus(response, new IllegalStateStatus(null));
@@ -49,7 +47,7 @@ public class RecommendationResource extends ApiResource {
             int i = 0;
             while (recommendationIds.size() < NUM_RECIPES && i < usersBySimilarity.size()) {
                 User u = usersBySimilarity.get(i);
-                List<Integer> diff = getFavoriteMealDifference(user, u);
+                List<Integer> diff = getFavoriteDifference(user, u);
                 for (int j = 0; j < Math.min(NUM_RECIPES - recommendationIds.size(), diff.size()); j++) {
                     utils.insertUniqueInteger(recommendationIds, diff.get(j));
                 }
@@ -69,24 +67,12 @@ public class RecommendationResource extends ApiResource {
         }
     }
 
-    private List<Integer> getFavoriteMealDifference(User u, User v) {
+    private List<Integer> getFavoriteDifference(User u, User v) {
         List<Integer> result = new ArrayList();
         Set<Integer> aux = new HashSet();
         for (int x : v.getFavorites()) {
             boolean notContained = true;
             for (int y : u.getFavorites()) {
-                if (x == y) {
-                    notContained = false;
-                    break;
-                }
-            }
-            if (notContained) {
-                aux.add(x);
-            }
-        }
-        for (int x : v.getMeals()) {
-            boolean notContained = true;
-            for (int y : u.getMeals()) {
                 if (x == y) {
                     notContained = false;
                     break;
