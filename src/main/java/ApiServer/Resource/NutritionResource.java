@@ -33,15 +33,7 @@ public class NutritionResource extends ApiResource {
                     "`calories` <= " + maxCalories + " AND `fat` >= " + minFat + " AND " +
                     "`fat` <= " + maxFat + " AND `protein` >= " + minProtein + " AND " +
                     "`protein` <= " + maxProtein + " AND `carbs` >= " + minCarbs + " AND `carbs` <= " + maxCarbs + ";";
-            ResultSet resultSet = Database.getInstance().ExecuteQuery(nutritionQuery, new ArrayList<String>());
-            List<Integer> recipeIds = new ArrayList();
-            try {
-                while (resultSet.next()) {
-                    recipeIds.add(resultSet.getInt(1));
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            List<Integer> recipeIds = dataHandler.handleListSingleInteger(database.ExecuteQuery(nutritionQuery, new ArrayList<String>()), 1);
             List<Integer> allowedRecipeIds = Database.getInstance().getAllowedRecipeIds(account_id);
             List<Integer> intersection = utils.getListIntegerIntersection(recipeIds, allowedRecipeIds);
             List<Recipe> recipes = new ArrayList();

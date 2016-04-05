@@ -43,30 +43,11 @@ public class ComboResource extends ApiResource {
                     "`calories` <= " + maxCalories + " AND `fat` >= " + minFat + " AND " +
                     "`fat` <= " + maxFat + " AND `protein` >= " + minProtein + " AND " +
                     "`protein` <= " + maxProtein + " AND `carbs` >= " + minCarbs + " AND `carbs` <= " + maxCarbs + ";";
-            ResultSet resultSet = Database.getInstance().ExecuteQuery(nutritionQuery, new ArrayList<String>());
-            List<Integer> recipeIds = new ArrayList();
-            try {
-                while (resultSet.next()) {
-                    recipeIds.add(resultSet.getInt(1));
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            List<Integer> recipeIds = dataHandler.handleListSingleInteger(database.ExecuteQuery(nutritionQuery, new ArrayList<String>()), 1);
             List<Integer> allowedRecipeIds = utils.getListIntegerIntersection(allowedIds, recipeIds);
             for (String s : ingredientsIntersection) {
                 String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "';";
-                ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
-                try {
-                    while (recipeResults.next()) {
-                        int i = recipeResults.getInt(1);
-                        if (utils.listContains(allowedRecipeIds, i)) {
-                            similarity.add(i);
-                        }
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    this.returnStatus(response, new IllegalStateStatus(null));
-                }
+                dataHandler.handleSimilarityMapInsertion(database.ExecuteQuery(recipeQuery, new ArrayList<String>()), similarity, allowedRecipeIds);
             }
             similarity.sortDescending();
             List<Recipe> recipes = new ArrayList();

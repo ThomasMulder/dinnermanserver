@@ -24,18 +24,8 @@ public class RecommendationResource extends ApiResource {
         if (account_id >= 0) {
             updateTokenExpiration(account_id);
             User user = Database.getInstance().getUserById(account_id);
-            List<User> otherUsers = new ArrayList();
             String userQuery = "SELECT `id`, `username` FROM `accounts` WHERE `id` != '" + account_id + "';";
-            ResultSet userResults = Database.getInstance().ExecuteQuery(userQuery, new ArrayList<String>());
-            try {
-                while (userResults.next()) {
-                    int id = userResults.getInt(1);
-                    otherUsers.add(Database.getInstance().getUserById(id));
-                }
-            } catch (SQLException e) {
-                this.returnStatus(response, new IllegalStateStatus(null));
-                e.printStackTrace();
-            }
+            List<User> otherUsers = dataHandler.handleListUser(Database.getInstance().ExecuteQuery(userQuery, new ArrayList<String>()));
             Map<User, Integer> similarityMap = new HashMap();
             for (User other : otherUsers) {
                 similarityMap.put(other, user.computeSimilarity(other));

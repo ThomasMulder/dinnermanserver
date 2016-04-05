@@ -9,6 +9,7 @@ import ApiServer.Serializer.Serializer;
 import Configuration.Database;
 import Model.Recipe;
 import Model.User;
+import Processing.Data.DataHandler;
 import Processing.Utils;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSerializer;
@@ -27,6 +28,9 @@ import java.util.List;
 
 public abstract class ApiResource extends Restlet {
     protected static Utils utils = Utils.getInstance();
+    protected static DataHandler dataHandler = DataHandler.getInstance();
+    protected static Database database = Database.getInstance();
+
     @Override
     public void handle(Request request, Response response) {
         String data = null;

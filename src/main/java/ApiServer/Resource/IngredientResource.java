@@ -33,18 +33,7 @@ public class IngredientResource extends ApiResource {
             List<Integer> allowedIds = Database.getInstance().getAllowedRecipeIds(account_id);
             for (String s : ingredientsIntersection) {
                 String recipeQuery = "SELECT `recipe_id` FROM `search_ingredients` WHERE `ingredient` = '" + s + "';";
-                ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
-                try {
-                    while (recipeResults.next()) {
-                        int i = recipeResults.getInt(1);
-                        if (utils.listContains(allowedIds, i)) {
-                            similarity.add(i);
-                        }
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    this.returnStatus(response, new IllegalStateStatus(null));
-                }
+                dataHandler.handleSimilarityMapInsertion(database.ExecuteQuery(recipeQuery, new ArrayList<String>()), similarity, allowedIds);
             }
             similarity.sortDescending();
             List<Recipe> recipes = new ArrayList();
