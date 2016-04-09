@@ -26,9 +26,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * Abstract class implementing some common functionality for API end-points.
+ */
 public abstract class ApiResource extends Restlet {
+    /* Singleton instance of Utils providing common functionality. */
     protected static Utils utils = Utils.getInstance();
+    /* Singleton instance of DataHandler providing data handling functionality. */
     protected static DataHandler dataHandler = DataHandler.getInstance();
+    /* Singleton instance of Database providing database interaction functionality. */
     protected static Database database = Database.getInstance();
 
     @Override
@@ -83,7 +89,8 @@ public abstract class ApiResource extends Restlet {
      * @throws IllegalArgumentException If the request contains an illegal argument
      * @throws IllegalStateException If the request requests an illegal state
      */
-    protected void handleGet(Request request, Response response) throws ClassNotFoundException, IllegalArgumentException, IllegalStateException
+    protected void handleGet(Request request, Response response) throws ClassNotFoundException,
+            IllegalArgumentException, IllegalStateException
     {
         response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
     }
@@ -98,7 +105,8 @@ public abstract class ApiResource extends Restlet {
      * @throws IllegalArgumentException If the request contains an illegal argument
      * @throws IllegalStateException If the request requests an illegal state
      */
-    protected void handlePost(Request request, Response response, String data) throws ClassNotFoundException, IllegalArgumentException, IllegalStateException
+    protected void handlePost(Request request, Response response, String data) throws ClassNotFoundException,
+            IllegalArgumentException, IllegalStateException
     {
         response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
     }
@@ -113,7 +121,8 @@ public abstract class ApiResource extends Restlet {
      * @throws IllegalArgumentException If the request contains an illegal argument
      * @throws IllegalStateException If the request requests an illegal state
      */
-    protected void handlePut(Request request, Response response, String data) throws ClassNotFoundException, IllegalArgumentException, IllegalStateException
+    protected void handlePut(Request request, Response response, String data) throws ClassNotFoundException,
+            IllegalArgumentException, IllegalStateException
     {
         response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
     }
@@ -128,7 +137,8 @@ public abstract class ApiResource extends Restlet {
      * @throws IllegalArgumentException If the request contains an illegal argument
      * @throws IllegalStateException If the request requests an illegal state
      */
-    protected void handleDelete(Request request, Response response, String data) throws ClassNotFoundException, IllegalArgumentException, IllegalStateException
+    protected void handleDelete(Request request, Response response, String data) throws ClassNotFoundException,
+            IllegalArgumentException, IllegalStateException
     {
         response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
     }
@@ -160,17 +170,25 @@ public abstract class ApiResource extends Restlet {
         this.returnResponse(response, status, null);
     }
 
+    /**
+     * Returns the account identifier for a request with parameters {@code username} and {@code authToken}.
+     * Returns {@code -1} is the credentials are invalid.
+     * @param request the request containing the parameters.
+     * @param response the response to return.
+     * @return
+     */
     protected int getAccountId(Request request, Response response) {
         String username = String.valueOf(request.getAttributes().get("username"));
         String authToken = String.valueOf(request.getAttributes().get("authToken"));
-        int account_id = -1;
+        int account_id = -1; // Default value.
+        // Query the database for given credentials.
         ResultSet results = Database.getInstance().ExecuteQuery("SELECT `id` FROM `accounts` WHERE BINARY `username` = '"
                 + username + "' AND BINARY `authToken` = '" + authToken + "'", new ArrayList<String>());
-        if (results != null) {
+        if (results != null) { // There is a result.
             try {
-                if(results.first()) {
-                    account_id = results.getInt(1);
-                } else {
+                if(results.first()) { // Look only at the first entry.
+                    account_id = results.getInt(1); // Obtain the account identifier.
+                } else { // There are no entries, something went wrong.
                     this.returnStatus(response, new IllegalArgumentStatus(null));
                 }
             } catch (SQLException e) {
@@ -180,23 +198,40 @@ public abstract class ApiResource extends Restlet {
         return account_id;
     }
 
+    /**
+     * Prolongs the expiration date of an authentication token. This action is to be performed after every legal
+     * request made by an account to the server.
+     * @param account_id the account identifier of the account to prolong the authentication token validity for.
+     */
     protected void updateTokenExpiration(int account_id) {
-        Database.getInstance().ExecuteUpdate("UPDATE `accounts` SET `authTokenCreated` = CURRENT_TIMESTAMP WHERE `id` = '" + account_id + "';", new ArrayList<String>());
+        Database.getInstance().ExecuteUpdate("UPDATE `accounts` SET `authTokenCreated` = CURRENT_TIMESTAMP WHERE `id` = '"
+                + account_id + "';", new ArrayList<String>());
     }
 
+    /**
+     * Auxiliary method for splitting comma-separated data.
+     * @param data the data to split.
+     * @return {@code String[]}.
+     */
     protected String[] getIdentifiersAsString(String data) {
-        checkData(data);
-        if (data.equals("")) {
+        checkData(data); // Check for null-value.
+        if (data.equals("")) { // Empty data.
             return new String[0];
         }
         return data.split(",");
     }
 
+    /**
+     * Auxiliary method for splitting comma-separated data.
+     * @param data the data to split.
+     * @return {@code int[]}.
+     */
     protected int[] getIdentifiersAsInteger(String data) {
-        checkData(data);
-        if (data.equals("")) {
+        checkData(data); // Check for null-value.
+        if (data.equals("")) { // Empty data.
             return new int[0];
         }
+        // Split into auxiliary String array, then parse each string to integer.
         String[] aux = data.split(",");
         int[] identifiers = new int[aux.length];
         int i = 0;
@@ -207,35 +242,42 @@ public abstract class ApiResource extends Restlet {
         return identifiers;
     }
 
+    /**
+     * Returns an instance of {@code Recipe} for a recipe with identifier {@code id}, if such a recipe exists.
+     * Otherwise, return {@code null}.
+     * @param id the identifier of the recipe to return a {@code Recipe} instance for.
+     * @return {@code Recipe}.
+     */
     protected Recipe getRecipeById(int id) {
+        // Query the database for recipes by id.
         String query = "SELECT * FROM `recipes` WHERE `id` = '" + id + "';";
-        ResultSet resultSet = Database.getInstance().ExecuteQuery(query, new ArrayList<String>());
-        try {
-            if (resultSet.next()) {
-                Recipe recipe = new Recipe(resultSet.getInt(2), resultSet.getInt(10), resultSet.getInt(11),
-                        resultSet.getInt(12), resultSet.getInt(13), resultSet.getString(3), resultSet.getString(4),
-                        resultSet.getString(5), resultSet.getInt(6), resultSet.getInt(7), resultSet.getInt(8),
-                        resultSet.getInt(9), resultSet.getString(14), resultSet.getString(15), resultSet.getString(16));
-                return recipe;
-
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+        // Auxiliary list, which should contain only one entry.
+        List<Recipe> aux = dataHandler.handleListRecipe(database.ExecuteQuery(query, new ArrayList<String>()));
+        if (!aux.isEmpty()) {
+            return aux.get(0);
         }
+        return null;
     }
 
+    /**
+     * Makes a HTTP response with a JSON-object describing a recipe identifier by {@code id}.
+     * @param response the response to send.
+     * @param id the identifier of the recipe to build a JSON-object for.
+     */
     protected void makeRecipeResponse(Response response, int id) {
-        Recipe recipe = getRecipeById(id);
+        Recipe recipe = getRecipeById(id); // Get the recipe object.
         if (recipe == null) {
             this.returnStatus(response, new IllegalStateStatus(null));
         } else {
+            // Make the response.
             this.returnResponse(response, recipe.toJson(), new AuxiliarySerializer());
         }
     }
 
+    /**
+     * Checks for null-value in data string.
+     * @param data the data to check.
+     */
     private void checkData(String data) {
         if (data == null) {
             throw new IllegalArgumentException("Invalid data provided.");

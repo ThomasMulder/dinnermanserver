@@ -115,6 +115,8 @@ public class Database {
         }
     }
 
+    /* Start of methods returning answers to frequently asked queries. */
+
     /**
      * Returns a list of all cuisines present in the database.
      * @return {@code List<String>}.
@@ -242,13 +244,21 @@ public class Database {
         return result;
     }
 
+    /**
+     * Returns an instance of {@code User} identified by {@code id}.
+     * @param id the identifier of the user to return an instance of {@code User} for.
+     * @return
+     */
     public User getUserById(int id) {
+        /* Construct a query for obtaining the favorites, allergens and general information. */
         String favoritesQuery = "SELECT `recipe_id` FROM `favorites` WHERE `account_id` = '" + id + "';";
         String allergensQuery = "SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + id + "';";
         String userQuery = "SELECT `username` FROM `accounts` WHERE `id` = '" + id + "' LIMIT 0,1;";
+        /* Execute the queries and handle the results. */
         List<Integer> favorites = dataHandler.handleListSingleInteger(ExecuteQuery(favoritesQuery, new ArrayList<String>()), 1);
         List<String> allergens = dataHandler.handleListSingleString(ExecuteQuery(allergensQuery, new ArrayList<String>()), 1);
         String username = dataHandler.handleSingleString(ExecuteQuery(userQuery, new ArrayList<String>()), 1);
+        /* Return new instance based on query results. */
         return new User(username, favorites, allergens);
     }
 
