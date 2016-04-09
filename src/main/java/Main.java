@@ -11,7 +11,7 @@ import Processing.Maintenance;
  * Main class of the application, used to initialise all services.
  */
 public class Main {
-    //private static Maintenance maintenance;
+    private static Maintenance maintenance;
 
     /**
      * Starts services.
@@ -39,8 +39,8 @@ public class Main {
     private static void startServices() {
         try {
             ApiServer.startServer();
-            //maintenance = new Maintenance();
-            //maintenance.startService();
+            maintenance = new Maintenance();
+            maintenance.startService();
         } catch (Exception e) {
             e.printStackTrace();
         }
