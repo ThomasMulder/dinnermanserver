@@ -27,6 +27,6 @@ public class UserTest {
         vFavorites.add(3);
         User u = new User("u", uFavorites, new ArrayList<String>());
         User v = new User("v", vFavorites, new ArrayList<String>());
-        assertTrue(u.computeSimilarity(v) == 6);
+        assertTrue(u.computeSimilarity(v) == 5);
     }
 }

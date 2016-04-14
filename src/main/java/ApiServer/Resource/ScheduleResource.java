@@ -17,14 +17,21 @@ public class ScheduleResource extends AbstractScheduleResource {
 
 
     @Override
+    /**
+     * Handles a HTTP GET request. This implements obtaining a schedule for an input number of days.
+     */
     protected void handleGet(Request request, Response response) throws  IllegalArgumentException {
         int account_id = getAccountId(request, response);
-        if (account_id >= 0) {
+        if (account_id >= 0) { // The account is valid.
             updateTokenExpiration(account_id);
+
+            /* Obtain the number of days paramter. */
             int days = Integer.parseInt(String.valueOf(request.getAttributes().get("days")));
+
+            /* Generate a list of cuisines. */
             String[] cuisineSchedule = findCuisineSchedule(account_id, days);
             List<Recipe> schedule = new ArrayList();
-            for (String cuisine : cuisineSchedule) {
+            for (String cuisine : cuisineSchedule) { // For each cuisine, find a suitable recipe.
                 List<Integer> allowedByCuisine = getAllowedCuisineIds(account_id, cuisine);
                 List<Integer> allowedByAllergen = Database.getInstance().getAllowedRecipeIds(account_id);
                 List<Integer> allowedIds = utils.getListIntegerIntersection(allowedByCuisine, allowedByAllergen);
