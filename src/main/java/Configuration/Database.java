@@ -1,6 +1,8 @@
 package Configuration;
 
-import Model.Recipe;
+import Model.User;
+import Processing.Data.DataHandler;
+import Processing.Utils;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,6 +17,8 @@ import java.util.Set;
 public class Database {
     /* Start Singleton */
     private static Database instance = null;
+    private static Utils utils = Utils.getInstance();
+    private static DataHandler dataHandler = DataHandler.getInstance();
 
     private static final int FAVORITE_WEIGHT = 5;
     private static final int MEAL_WEIGHT = 1;
@@ -111,22 +115,19 @@ public class Database {
         }
     }
 
+    /* Start of methods returning answers to frequently asked queries. */
+
     /**
      * Returns a list of all cuisines present in the database.
      * @return {@code List<String>}.
      */
     public List<String> getCuisines() {
-        List<String> result = new ArrayList();
+        List<String> result;
         Set<String> aux = new HashSet(); // Auxiliary set to take care of duplicates.
-        ResultSet cuisineList = ExecuteQuery("SELECT `cuisine` FROM `recipes`;", new ArrayList<String>());
-        try {
-            while (cuisineList.next()) {
-                String cuisine = cuisineList.getString(1);
-                aux.add(cuisine);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        String query = "SELECT `cuisine` FROM `recipes`;";
+        result = dataHandler.handleListSingleString(ExecuteQuery(query, new ArrayList<String>()), 1);
+        aux.addAll(result);
+        result.clear();
         for (String cuisine : aux) {
             result.add(cuisine);
         }
@@ -138,19 +139,15 @@ public class Database {
      * @return {@code List<String>}
      */
     public List<String> getSearchIngredients() {
-        List<String> result = new ArrayList();
+        List<String> result;
         Set<String> aux = new HashSet(); // Auxiliary set to take care of duplicates.
-        ResultSet ingredientList = ExecuteQuery("SELECT `ingredient` FROM `search_ingredients`;", new ArrayList<String>());
-        try {
-            while (ingredientList.next()) {
-                String ingredient = ingredientList.getString(1).trim();
-                aux.add(capitalize(ingredient));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        for (String cuisine : aux) {
-            result.add(cuisine);
+        String query = "SELECT `ingredient` FROM `search_ingredients`;";
+        result = dataHandler.handleListSingleString(ExecuteQuery(query, new ArrayList<String>()), 1);
+        aux.addAll(result);
+        result.clear();
+        for (String ingredient : aux) {
+            ingredient = ingredient.trim();
+            result.add(capitalize(ingredient));
         }
         return result;
     }
@@ -163,59 +160,40 @@ public class Database {
     public List<Integer> getAllowedRecipeIds(int accountId) {
         List<Integer> result = new ArrayList();
         String recipeQuery = "SELECT `id` FROM `recipes`;";
-        List<Integer> recipeIds = new ArrayList();
-        ResultSet recipeResults = Database.getInstance().ExecuteQuery(recipeQuery, new ArrayList<String>());
-        try {
-            while (recipeResults.next()) { // Obtain the ids of all recipes.
-                recipeIds.add(recipeResults.getInt(1));
+        List<Integer> recipeIds = dataHandler.handleListSingleInteger(ExecuteQuery(recipeQuery, new ArrayList<String>()), 1);
+        List<String> allergens = getAllergens(accountId);
+        for (int recipeId : recipeIds) { // Check every recipe...
+            String ingredientQuery = "SELECT `ingredient` FROM `search_ingredients` WHERE `recipe_id` = '" + recipeId + "';";
+            List<String> aux = dataHandler.handleListSingleString(ExecuteQuery(ingredientQuery, new ArrayList<String>()), 1);
+            List<String> ingredients = new ArrayList();
+            for (String a : aux) {
+                a = a.trim();
+                ingredients.add(a);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-            List<String> allergens = getAllergens(accountId);
-            for (int recipeId : recipeIds) { // Check every recipe...
-                String ingredientQuery = "SELECT `ingredient` FROM `search_ingredients` WHERE `recipe_id` = '" + recipeId + "';";
-                ResultSet ingredientResults = ExecuteQuery(ingredientQuery, new ArrayList<String>());
-                List<String> ingredients = new ArrayList();
-                try {
-                    while (ingredientResults.next()) { // Obtain the list of ingredients for this recipe.
-                        String ingredient = ingredientResults.getString(1);
-                        ingredient = ingredient.trim();
-                        ingredients.add(ingredient);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            boolean recipeIsAllowed = true;
+            for (String ingredient : ingredients) { // Check whether or not the recipe contains an allergen.
+                if (utils.listContains(allergens, ingredient, false)) {
+                    recipeIsAllowed = false;
+                    break;
                 }
-                boolean recipeIsAllowed = true;
-                for (String ingredient : ingredients) { // Check whether or not the recipe contains an allergen.
-                    if (listContains(allergens, ingredient)) {
+            }
+            /* Additional 'soft' check in the plaintext description of ingredients. */
+            if (recipeIsAllowed) {
+                String ingredientsQuery = "SELECT `ingredients` FROM `recipes` WHERE `id` = " + recipeId + ";";
+                List<String> ingredientsList = dataHandler.handleListSingleString(ExecuteQuery(ingredientsQuery, new ArrayList<String>()), 1);
+                String ingredientsText = ingredientsList.get(0).toLowerCase().trim();
+                for (String allergen : allergens) {
+                    if (ingredientsText.contains(allergen)) {
+                        //System.out.println("Found: " + allergen + " in text.");
                         recipeIsAllowed = false;
                         break;
                     }
                 }
-                /* Additional 'soft' check in the plaintext description of ingredients. */
-                if (recipeIsAllowed) {
-                    String ingredientsQuery = "SELECT `ingredients` FROM `recipes` WHERE `id` = " + recipeId + ";";
-                    ResultSet resultSet = ExecuteQuery(ingredientsQuery, new ArrayList<String>());
-                    try {
-                        while (resultSet.next()) {
-                            String ingredientsText = resultSet.getString(1).toLowerCase();
-                            for (String allergen : allergens) {
-                                if (ingredientsText.contains(allergen)) {
-                                    //System.out.println("Found: " + allergen + " in text.");
-                                    recipeIsAllowed = false;
-                                    break;
-                                }
-                            }
-                        }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (recipeIsAllowed) { // The recipe is allowed with respect to the user's allergens.
-                    result.add(recipeId);
-                }
             }
+            if (recipeIsAllowed) { // The recipe is allowed with respect to the user's allergens.
+                result.add(recipeId);
+            }
+        }
         return result;
     }
 
@@ -226,33 +204,10 @@ public class Database {
      */
     public List<String> getAllowedIngredients(int accountId) {
         // Return all ingredients minus those set as allergens.
-        return getListDifference(getSearchIngredients(), getAllergens(accountId));
+        return utils.getListStringDifference(getSearchIngredients(), getAllergens(accountId), false);
     }
 
-    /**
-     * Returns the difference {@code (a - b)} of two parameterised {@code List<String> a} and {@code b}.
-     * @param a the list to subtract from.
-     * @param b the list to subtract.
-     * @return the difference (a - b).
-     */
-    public List<String> getListDifference(List<String> a, List<String> b) {
-        List<String> result = new ArrayList();
-        for (String s : a) { // Iterate over a.
-            s = s.toLowerCase().trim(); // Make String uniform.
-            boolean isAllowed = true; // Assumption.
-            for (String t : b) { // Iterate over b.
-                t = t.toLowerCase().trim(); // Make String uniform.
-                if (t.equals(s)) { // s is present in b.
-                    isAllowed = false;
-                    break;
-                }
-            }
-            if (isAllowed) { // s is not present in b and is allowed.
-                result.add(s);
-            }
-        }
-        return result;
-    }
+
 
     /**
      * Returns the list of ingredients that are set as allergens for the account with identifier {@code accountId}.
@@ -260,18 +215,9 @@ public class Database {
      * @return the list of all allergens for said account.
      */
     public List<String> getAllergens(int accountId) {
-        List<String> result = new ArrayList();
         /* Query database for allergens belonging to this account identifier. */
         String allergenQuery = "SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + accountId + "';";
-        ResultSet allergenResults = ExecuteQuery(allergenQuery, new ArrayList<String>());
-        try {
-            while (allergenResults.next()) { // Obtain the user's allergen list.
-                String allergen = allergenResults.getString(1);
-                result.add(allergen);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        List<String> result = dataHandler.handleListSingleString(ExecuteQuery(allergenQuery, new ArrayList<String>()), 1);
         return result;
     }
 
@@ -294,48 +240,26 @@ public class Database {
                 " FROM `favorites` GROUP BY `recipe_id` UNION ALL SELECT `meal_id` AS `recipe_id`, " + MEAL_WEIGHT +
                 " * COUNT(`meal_id`) AS `CNT` FROM `meals` GROUP BY `meal_id`) AS X GROUP BY `recipe_id` ORDER BY" +
                 " `CNT` DESC) AS Y));";
-        List<Integer> result = new ArrayList();
-        ResultSet popularResults = ExecuteQuery(popularQuery, new ArrayList<String>());
-        try {
-            while (popularResults.next()) { // Add the results of the query.
-                result.add(popularResults.getInt(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        List<Integer> result = dataHandler.handleListSingleInteger(ExecuteQuery(popularQuery, new ArrayList<String>()), 1);
         return result;
     }
 
     /**
-     * Checks whether or not {@code List<String> list} contains {@code String string}.
-     * @param list the list to check in.
-     * @param string the string to check for.
-     * @return {@code boolean}.
+     * Returns an instance of {@code User} identified by {@code id}.
+     * @param id the identifier of the user to return an instance of {@code User} for.
+     * @return
      */
-    public boolean listContains(List<String> list, String string) {
-        string = string.toLowerCase().trim();
-        for (String s : list) {
-            s = s.toLowerCase().trim();
-            if (s.equals(string)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether or not {@code List<String> list} contains {@code String string}.
-     * @param list the list to check in.
-     * @param x the string to check for.
-     * @return {@code boolean}.
-     */
-    public boolean listContains(List<Integer> list, int x) {
-        for (int i : list) {
-            if (i == x) {
-                return true;
-            }
-        }
-        return false;
+    public User getUserById(int id) {
+        /* Construct a query for obtaining the favorites, allergens and general information. */
+        String favoritesQuery = "SELECT `recipe_id` FROM `favorites` WHERE `account_id` = '" + id + "';";
+        String allergensQuery = "SELECT `allergen` FROM `allergens` WHERE `account_id` = '" + id + "';";
+        String userQuery = "SELECT `username` FROM `accounts` WHERE `id` = '" + id + "' LIMIT 0,1;";
+        /* Execute the queries and handle the results. */
+        List<Integer> favorites = dataHandler.handleListSingleInteger(ExecuteQuery(favoritesQuery, new ArrayList<String>()), 1);
+        List<String> allergens = dataHandler.handleListSingleString(ExecuteQuery(allergensQuery, new ArrayList<String>()), 1);
+        String username = dataHandler.handleSingleString(ExecuteQuery(userQuery, new ArrayList<String>()), 1);
+        /* Return new instance based on query results. */
+        return new User(username, favorites, allergens);
     }
 
     /**
@@ -347,7 +271,7 @@ public class Database {
      */
     public boolean isValidIngredient(String ingredient) {
         List<String> allowedIngredients = getSearchIngredients();
-        if (listContains(allowedIngredients, ingredient)) {
+        if (utils.listContains(allowedIngredients, ingredient, false)) {
             return true;
         }
         return false;
@@ -360,21 +284,9 @@ public class Database {
      * @return
      */
     public boolean isValidRecipeId(int id) {
-        List<Integer> allowedIds = new ArrayList();
         String idQuery = "SELECT `id` FROM `recipes`;";
-        ResultSet resultSet = ExecuteQuery(idQuery, new ArrayList<String>());
-        try { // Get all recipe ids.
-            while (resultSet.next()) {
-                allowedIds.add(resultSet.getInt(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-        if (listContains(allowedIds, id)) {
-            return true;
-        }
-        return false;
+        List<Integer> allowedIds = dataHandler.handleListSingleInteger(ExecuteQuery(idQuery, new ArrayList<String>()), 1);
+        return utils.listContains(allowedIds, id);
     }
 
     /**

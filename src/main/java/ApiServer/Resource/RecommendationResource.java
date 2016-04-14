@@ -16,49 +16,60 @@ import java.util.*;
  * Created by s124392 on 2-3-2016.
  */
 public class RecommendationResource extends ApiResource {
+    /* The maximum number of recipes to be returned. */
     private static final int NUM_RECIPES = 5;
 
     @Override
+    /**
+     * Handles a HTTP GET request. This implements obtaining a recommendation based on user similarity from the server.
+     */
     protected void handleGet(Request request, Response response) throws  IllegalArgumentException {
         int account_id = getAccountId(request, response);
-        if (account_id >= 0) {
+        if (account_id >= 0) { // The account is valid.
             updateTokenExpiration(account_id);
-            String username = String.valueOf(request.getAttributes().get("username"));
-            User user = getUser(account_id, username);
-            List<User> otherUsers = new ArrayList();
+
+            /* Obtain additional user information for the user making the requests, and all other users in the database. */
+            User user = Database.getInstance().getUserById(account_id);
             String userQuery = "SELECT `id`, `username` FROM `accounts` WHERE `id` != '" + account_id + "';";
-            ResultSet userResults = Database.getInstance().ExecuteQuery(userQuery, new ArrayList<String>());
-            try {
-                while (userResults.next()) {
-                    int id = userResults.getInt(1);
-                    String name = userResults.getString(2);
-                    otherUsers.add(getUser(id, name));
-                }
-            } catch (SQLException e) {
-                this.returnStatus(response, new IllegalStateStatus(null));
-                e.printStackTrace();
-            }
+            List<User> otherUsers = dataHandler.handleListUser(Database.getInstance().ExecuteQuery(userQuery,
+                    new ArrayList<String>()));
+
+            /* For every user in the database other than the user making the request, calculate the similarity with
+            the user making the request.
+             */
             Map<User, Integer> similarityMap = new HashMap();
             for (User other : otherUsers) {
                 similarityMap.put(other, user.computeSimilarity(other));
             }
-            similarityMap = sortByValue(similarityMap);
+            similarityMap = sortByValue(similarityMap); // Sort the list of other uses by decreasing similarity.
             List<User> usersBySimilarity = new ArrayList();
             usersBySimilarity.addAll(similarityMap.keySet());
             List<Integer> recommendationIds = new ArrayList();
             int i = 0;
+            /* Iterate over the list of other users until enough recipes have been found. */
             while (recommendationIds.size() < NUM_RECIPES && i < usersBySimilarity.size()) {
                 User u = usersBySimilarity.get(i);
-                List<Integer> diff = getFavoriteMealDifference(user, u);
+                List<Integer> diff = getFavoriteDifference(user, u); // Obtain the list of recipes the other user
+                // has favorited, but the user making this request has not.
                 for (int j = 0; j < Math.min(NUM_RECIPES - recommendationIds.size(), diff.size()); j++) {
-                    insertUnique(recommendationIds, diff.get(j));
+                    /* Add every recipe in the difference to the result, stop if the number of required recipes
+                    is reached.
+                     */
+                    utils.insertUniqueInteger(recommendationIds, diff.get(j));
                 }
                 i++;
             }
+            /* Get a list of recipe identifiers of all recipes in the database sorted by popularity
+            (e.g. aggregated favorite count).
+             */
             List<Integer> recipesByPopularity = Database.getInstance().getRecipeIdsByPopularity();
             i = 0;
+
+            /*
+            Make up the deficit in recipes obtained from other users by the most popular recipes.
+             */
             while(recommendationIds.size() < NUM_RECIPES) {
-                insertUnique(recommendationIds, recipesByPopularity.get(i));
+                utils.insertUniqueInteger(recommendationIds, recipesByPopularity.get(i));
                 i++;
             }
             List<Recipe> recipes = new ArrayList();
@@ -69,7 +80,7 @@ public class RecommendationResource extends ApiResource {
         }
     }
 
-    private List<Integer> getFavoriteMealDifference(User u, User v) {
+    private List<Integer> getFavoriteDifference(User u, User v) {
         List<Integer> result = new ArrayList();
         Set<Integer> aux = new HashSet();
         for (int x : v.getFavorites()) {
@@ -84,22 +95,17 @@ public class RecommendationResource extends ApiResource {
                 aux.add(x);
             }
         }
-        for (int x : v.getMeals()) {
-            boolean notContained = true;
-            for (int y : u.getMeals()) {
-                if (x == y) {
-                    notContained = false;
-                    break;
-                }
-            }
-            if (notContained) {
-                aux.add(x);
-            }
-        }
         result.addAll(aux);
         return result;
     }
 
+    /**
+     * Sorts an instance of {@code Map} on its value set, in descending order.
+     * @param map the map to sort.
+     * @param <K> the key set of the map to sort.
+     * @param <V> the value set of the map to sort.
+     * @return {@code Map}.
+     */
     private <K, V extends Comparable<? super V>> Map<K, V>
     sortByValue( Map<K, V> map )
     {
@@ -122,18 +128,5 @@ public class RecommendationResource extends ApiResource {
             result.put( entry.getKey(), entry.getValue() );
         }
         return result;
-    }
-
-    private void insertUnique(List<Integer> l, int x) {
-        boolean contains = false;
-        for (int i : l) {
-            if (i == x) {
-                contains = true;
-                break;
-            }
-        }
-        if (!contains) {
-            l.add(x);
-        }
     }
 }

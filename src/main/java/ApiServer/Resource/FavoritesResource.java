@@ -14,9 +14,12 @@ import java.util.ArrayList;
 public class FavoritesResource extends ApiResource {
 
     @Override
+    /**
+     * Handles a HTTP POST request. This implements adding a favorite to the database for a specific user.
+     */
     protected void handlePost(Request request, Response response, String data) throws ClassNotFoundException, IllegalArgumentException, IllegalStateException {
         int account_id = getAccountId(request, response);
-        if (account_id >= 0) {
+        if (account_id >= 0) { // Account is valid.
             updateTokenExpiration(account_id);
             for (int id : getIdentifiersAsInteger(data)) { // Add new data.
                 if (Database.getInstance().isValidRecipeId(id)) { // Is an allowed recipe identifier.
@@ -31,11 +34,14 @@ public class FavoritesResource extends ApiResource {
     }
 
     @Override
+    /**
+     * Handles a HTTP POST request. This implements deleting a favorite from the database for a specific user.
+     */
     protected void handleDelete(Request request, Response response, String data) throws ClassNotFoundException, IllegalArgumentException, IllegalStateException {
         int account_id = getAccountId(request, response);
-        if (account_id >= 0) {
+        if (account_id >= 0) { // Account is valid.
             updateTokenExpiration(account_id);
-            for (int id : getIdentifiersAsInteger(data)) {
+            for (int id : getIdentifiersAsInteger(data)) { // Remove data.
                 Database.getInstance().ExecuteUpdate("DELETE FROM `favorites` WHERE `account_id` = '" + account_id + "' AND `recipe_id` = '" + id + "';", new ArrayList<String>());
             }
             this.returnStatus(response, new SuccessStatus(null));

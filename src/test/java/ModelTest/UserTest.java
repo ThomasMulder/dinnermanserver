@@ -20,19 +20,13 @@ public class UserTest {
      */
     public void testComputeSimilarity() throws Exception {
         List<Integer> uFavorites = new ArrayList();
-        List<Integer> uMeals = new ArrayList();
         List<Integer> vFavorites = new ArrayList();
-        List<Integer> vMeals = new ArrayList();
         uFavorites.add(1);
         uFavorites.add(2);
-        uMeals.add(1);
-        uMeals.add(3);
         vFavorites.add(1);
         vFavorites.add(3);
-        vMeals.add(3);
-        vMeals.add(2);
-        User u = new User("u", uFavorites, new ArrayList<String>(), uMeals);
-        User v = new User("v", vFavorites, new ArrayList<String>(), vMeals);
-        assertTrue(u.computeSimilarity(v) == 6);
+        User u = new User("u", uFavorites, new ArrayList<String>());
+        User v = new User("v", vFavorites, new ArrayList<String>());
+        assertTrue(u.computeSimilarity(v) == 5);
     }
 }

@@ -44,48 +44,47 @@ public class DatabaseTest {
     public void testGetSearchIngredients() throws Exception {
         List<String> ingredients = Database.getInstance().getSearchIngredients();
         List<String> expected = new ArrayList();
-        expected.add("Potatoes");
         expected.add("Pepper");
-        expected.add("Vanilla");
-        expected.add("Coconut");
-        expected.add("Cream");
-        expected.add("Cheese");
-        expected.add("Leeks");
-        expected.add("Ginger");
-        expected.add("Eggs");
-        expected.add("Salt");
-        expected.add("Paprika");
-        expected.add("Fish");
-        expected.add("Beef");
-        expected.add("Tomatoes");
-        expected.add("Cabbage");
-        expected.add("Spinach");
-        expected.add("Sugar");
-        expected.add("Shrimp");
-        expected.add("Rice");
-        expected.add("Milk");
-        expected.add("Peanut");
-        expected.add("Onions");
-        expected.add("Mushrooms");
-        expected.add("Soy sauce");
-        expected.add("Chocolate");
-        expected.add("Mutton");
-        expected.add("Apples");
-        expected.add("Honey");
-        expected.add("Lemons");
-        expected.add("Broccoli");
-        expected.add("Carrots");
         expected.add("Chicken");
-        expected.add("Garlic");
-        expected.add("Pasta");
-        expected.add("Mustard");
+        expected.add("Spinach");
+        expected.add("Potatoes");
+        expected.add("Cabbage");
+        expected.add("Shrimp");
         expected.add("Cucumber");
+        expected.add("Broccoli");
+        expected.add("Soy sauce");
+        expected.add("Beef");
         expected.add("Pork");
+        expected.add("Cheese");
+        expected.add("Tomatoes");
+        expected.add("Mustard");
+        expected.add("Leeks");
+        expected.add("Honey");
+        expected.add("Pasta");
+        expected.add("Carrots");
+        expected.add("Peanut");
         expected.add("Limes");
+        expected.add("Vanilla");
+        expected.add("Mutton");
+        expected.add("Eggs");
+        expected.add("Garlic");
+        expected.add("Salt");
+        expected.add("Onions");
         expected.add("Noodles");
+        expected.add("Milk");
+        expected.add("Cream");
+        expected.add("Rice");
+        expected.add("Lemons");
+        expected.add("Coconut");
+        expected.add("Mushrooms");
+        expected.add("Paprika");
+        expected.add("Ginger");
+        expected.add("Fish");
+        expected.add("Apples");
+        expected.add("Sugar");
+        expected.add("Chocolate");
         assertTrue(ingredients.size() == expected.size());
         for (int i = 0; i < ingredients.size(); i++) {
-            //System.out.println(ingredients.get(i));
             assertTrue(ingredients.get(i).equals(expected.get(i)));
         }
     }
@@ -102,10 +101,6 @@ public class DatabaseTest {
         expected.add(449585);
         expected.add(552811);
         expected.add(40023);
-        expected.add(374273);
-        expected.add(239068);
-        expected.add(384740);
-        expected.add(470413);
         expected.add(150074);
         expected.add(474640);
         expected.add(540890);
@@ -113,8 +108,6 @@ public class DatabaseTest {
         expected.add(112272);
         expected.add(427600);
         expected.add(433338);
-        expected.add(204018);
-        expected.add(470869);
         expected.add(584911);
         expected.add(266072);
         expected.add(537481);
@@ -146,61 +139,46 @@ public class DatabaseTest {
     public void testGetAllowedIngredients() throws Exception {
         List<String> ingredients = Database.getInstance().getAllowedIngredients(1);
         List<String> expected = new ArrayList();
-        expected.add("potatoes");
         expected.add("pepper");
-        expected.add("vanilla");
-        expected.add("coconut");
-        expected.add("cream");
-        expected.add("cheese");
-        expected.add("leeks");
-        expected.add("ginger");
-        expected.add("salt");
-        expected.add("paprika");
-        expected.add("fish");
-        expected.add("beef");
-        expected.add("tomatoes");
-        expected.add("cabbage");
-        expected.add("spinach");
-        expected.add("sugar");
-        expected.add("shrimp");
-        expected.add("rice");
-        expected.add("onions");
-        expected.add("mushrooms");
-        expected.add("soy sauce");
-        expected.add("chocolate");
-        expected.add("mutton");
-        expected.add("apples");
-        expected.add("honey");
-        expected.add("lemons");
-        expected.add("broccoli");
-        expected.add("carrots");
         expected.add("chicken");
-        expected.add("garlic");
-        expected.add("pasta");
-        expected.add("mustard");
+        expected.add("spinach");
+        expected.add("potatoes");
+        expected.add("cabbage");
+        expected.add("shrimp");
         expected.add("cucumber");
+        expected.add("broccoli");
+        expected.add("soy sauce");
+        expected.add("beef");
         expected.add("pork");
+        expected.add("cheese");
+        expected.add("tomatoes");
+        expected.add("mustard");
+        expected.add("leeks");
+        expected.add("honey");
+        expected.add("pasta");
+        expected.add("carrots");
         expected.add("limes");
+        expected.add("vanilla");
+        expected.add("mutton");
+        expected.add("garlic");
+        expected.add("salt");
+        expected.add("onions");
         expected.add("noodles");
+        expected.add("cream");
+        expected.add("rice");
+        expected.add("lemons");
+        expected.add("coconut");
+        expected.add("mushrooms");
+        expected.add("paprika");
+        expected.add("ginger");
+        expected.add("fish");
+        expected.add("apples");
+        expected.add("sugar");
+        expected.add("chocolate");
         assertTrue(ingredients.size() == expected.size());
         for (int i = 0; i < ingredients.size(); i++) {
             assertTrue(ingredients.get(i).equals(expected.get(i)));
         }
-    }
-
-    @Test
-    /**
-     * Tests the {@code getListDifference()} method of the {@code Database} class.
-     */
-    public void testGetListDifference() throws Exception {
-        List<String> a = new ArrayList();
-        List<String> b = new ArrayList();
-        a.add("a");
-        a.add("b");
-        b.add("b");
-        List<String> diff = Database.getInstance().getListDifference(a, b);
-        assertTrue(diff.size() == 1);
-        assertTrue(diff.get(0).equals("a"));
     }
 
     @Test
@@ -210,35 +188,13 @@ public class DatabaseTest {
     public void testGetAllergens() throws Exception {
         List<String> allergens = Database.getInstance().getAllergens(1);
         List<String> expected = new ArrayList();
-        expected.add("eggs");
         expected.add("milk");
         expected.add("peanut");
+        expected.add("eggs");
         assertTrue(allergens.size() == expected.size());
         for (int i = 0; i < allergens.size(); i++) {
             assertTrue(allergens.get(i).equals(expected.get(i)));
         }
-    }
-
-    @Test
-    /**
-     * Tests the {@code listContains()} method of the {@code Database} class.
-     */
-    public void testListContains() throws Exception {
-        List<Integer> aux = new ArrayList();
-        aux.add(1);
-        assertTrue(Database.getInstance().listContains(aux, 1));
-        assertFalse(Database.getInstance().listContains(aux, 2));
-    }
-
-    @Test
-    /**
-     * Tests the {@code listContains()} method of the {@code Database} class.
-     */
-    public void testListContains1() throws Exception {
-        List<String> aux = new ArrayList();
-        aux.add("a");
-        assertTrue(Database.getInstance().listContains(aux, "a"));
-        assertFalse(Database.getInstance().listContains(aux, "b"));
     }
 
     @Test
